@@ -1,6 +1,8 @@
 'use strict';
 
 const assert = require('power-assert');
+const util = require('util');
+
 const FileDiff = require('../repo').FileDiff;
 const Repo = require('../repo').Repo;
 const FileRef = require('../file-ref').FileRef;

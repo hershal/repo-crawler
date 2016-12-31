@@ -33,12 +33,14 @@ module.exports.FileDiff = FileDiff;
 
 class Commit {
   get sha() { return this._sha; }
+  get date() { return this._date; }
   get fileDiffs() { return this._fileDiffs; }
   get additions() { return this._add; }
   get deletions() { return this._del; }
 
-  constructor(sha, commitstat) {
+  constructor(sha, date, commitstat) {
     this._sha = sha;
+    this._date = new Date(date);
     this._fileDiffs = new Array();
     this._add = 0;
     this._del = 0;

@@ -29,5 +29,8 @@
 
   "swift": {"filetype": "swift", "category": "ios"},
 
+  "txt": {"filetype": "Text File", "category": "other"},
+
+
   "gitignore": {"filetype": "gitignore", "category": "git"}
 }
