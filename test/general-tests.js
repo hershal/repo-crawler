@@ -28,6 +28,7 @@ describe('FileRef Tests', function () {
     assert(file.path == '/tmp/data.json');
     assert(file.name == 'data.json');
     assert(file.extension == 'json');
+    assert(file.classification.category = 'web');
   });
 });
 
@@ -44,7 +45,13 @@ describe('Repo Categorization Tests', function () {
     });
   });
 
-  it('', function () {
-
+  it('should not have an unknown classification' , function () {
+    repo.commits.forEach((c) => {
+      c.fileDiffs.forEach((d) => {
+        assert(d.file.classification);
+        assert(d.file.classification.filetype);
+        assert(d.file.classification.category);
+      });
+    });
   });
 });
