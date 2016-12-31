@@ -38,16 +38,23 @@ describe('Repo Categorization Tests', function () {
 
   before('should create a repo object', function(done) {
     let dir = '../hershal.com';
-    repo = new Repo(dir);
-    repo.traverse().then(function () {
+    repo = new Repo();
+    repo.traverse(dir).then(function () {
       assert(repo.additions > 0 && repo.deletions > 0);
       done();
     });
   });
 
-  it('should not have an unknown classification' , function () {
+  it('should have known classification' , function () {
+    assert(repo.commits.length > 0);
     repo.commits.forEach((c) => {
+      assert(c.date > 0);
+      if (!c.sha) {
+        console.log(c);
+      }
       c.fileDiffs.forEach((d) => {
+        assert(!isNaN(d.additions));
+        assert(!isNaN(d.deletions));
         assert(d.file.classification);
         assert(d.file.classification.filetype);
         assert(d.file.classification.category);

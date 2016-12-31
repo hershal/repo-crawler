@@ -71,32 +71,45 @@ class Repo {
   get additions() { return this._add; }
   get deletions() { return this._del; }
 
-  constructor(dir) {
+  constructor() {
     this._commits = new Array();
     this._add = 0;
     this._del = 0;
-    this._dir = dir;
   }
 
-  traverse() {
-    let gitCommand = shell.exec(`git -C ${this._dir} log --author hershal --format='%H'`, {silent: true});
-    let shas = arr(gitCommand.stdout);
+  traverse(dir) {
+    if (Array.isArray(dir)) {
+      return dir.forEach((d) => this._traverse(dir));
+    } else {
+      return this._traverse(dir);
+    }
+  }
+
+  _traverse(dir) {
+    let gitCommand = shell.exec(`git -C ${dir} log --author hershal --format='%H'`,
+                                {silent: true});
+    let commitLines = arr(gitCommand.stdout);
     let promises = new Array();
-    for (let sha of shas) {
+    for (let line of commitLines) {
       promises.push(new Promise(
         (resolve, reject) => {
-        shell
-          .exec(`git -C ${this._dir} diff-tree -w --numstat --diff-filter=ADM ${sha}`,
-                { silent: true },
-                (code, stdout, stderr) => {
-                  let commitStat = arr(stdout);
-                  const sha = commitStat.shift();
-                  const commit = new Commit(sha, commitStat);
-                  this._commits.push(commit);
-                  this._add += commit.additions;
-                  this._del += commit.deletions;
-                  resolve();
-                });
+          const sha = line;
+          shell
+            .exec(`git -C ${dir} show -w --numstat --diff-filter=ADM ${sha} --date=iso-strict --format='%ad'`,
+                  { silent: true },
+                  (code, stdout, stderr) => {
+                    /* This complexity arises because git cannot format the
+                     * numstat lines for me, thus I have to build this ugliness
+                     * to understand the info that git is giving me. */
+                    let commitStat = arr(stdout);
+                    const date = commitStat.shift();
+                    commitStat.shift(); /* remove the newline */
+                    const commit = new Commit(sha, date, commitStat);
+                    this._commits.push(commit);
+                    this._add += commit.additions;
+                    this._del += commit.deletions;
+                    resolve();
+                  });
         }
       ));
     }
