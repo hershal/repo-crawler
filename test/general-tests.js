@@ -2,6 +2,7 @@
 
 const assert = require('power-assert');
 const util = require('util');
+const _ = require('lodash');
 
 const FileDiff = require('../repo').FileDiff;
 const Repo = require('../repo').Repo;
@@ -59,6 +60,15 @@ describe('Repo Categorization Tests', function () {
         assert(d.file.classification.filetype);
         assert(d.file.classification.category);
       });
+    });
+  });
+
+  it('repo commits sorted by date', function () {
+    const sorted = _.sortBy(repo.commits.sort, 'date');
+    let date = 0;
+    sorted.forEach(function (c) {
+      assert(c.date > date);
+      date = c.date;
     });
   });
 });
