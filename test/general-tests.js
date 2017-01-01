@@ -54,8 +54,8 @@ describe('Repo Categorization Tests', function () {
       assert(c.date > 0);
       assert(c.sha.length == 40);
       c.fileDiffs.forEach((d) => {
-        assert(!isNaN(d.additions));
-        assert(!isNaN(d.deletions));
+        assert(!isNaN(d.additions) && d.additions >= 0);
+        assert(!isNaN(d.deletions) && d.deletions >= 0);
         assert(d.file.classification);
         assert(d.file.classification.filetype);
         assert(d.file.classification.category);

@@ -31,6 +31,5 @@
 
   "txt": {"filetype": "Text File", "category": "other"},
 
-
   "gitignore": {"filetype": "gitignore", "category": "git"}
 }
