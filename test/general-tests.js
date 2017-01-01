@@ -38,7 +38,7 @@ describe('FileRef Tests', function () {
 describe('Repo Categorization Tests', function () {
   let repo;
 
-  before('should create a repo object', function(done) {
+  beforeEach('should create a repo object', function(done) {
     let dir = '../hershal.com';
     repo = new Repo();
     repo.traverse(dir).then(function () {
@@ -51,9 +51,7 @@ describe('Repo Categorization Tests', function () {
     assert(repo.commits.length > 0);
     repo.commits.forEach((c) => {
       assert(c.date > 0);
-      if (!c.sha) {
-        console.log(c);
-      }
+      assert(c.sha.length == 40);
       c.fileDiffs.forEach((d) => {
         assert(!isNaN(d.additions));
         assert(!isNaN(d.deletions));
