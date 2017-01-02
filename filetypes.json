@@ -1,35 +1,35 @@
 {
-  "h": {"filetype": "C", "category": "systems"},
-  "c": {"filetype": "C", "category": "systems"},
+  "h": {"language": "C", "category": "systems"},
+  "c": {"language": "C", "category": "systems"},
 
-  "hpp": {"filetype": "C++", "category": "systems"},
-  "cpp": {"filetype": "C++", "category": "systems"},
+  "hpp": {"language": "C++", "category": "systems"},
+  "cpp": {"language": "C++", "category": "systems"},
 
-  "el": {"filetype": "Emacs-Lisp", "category": "emacs"},
-  "elc": {"filetype": "Emacs-Lisp", "category": "emacs"},
-  "org": {"filetype": "Org-Mode", "category": "emacs"},
+  "el": {"language": "Emacs-Lisp", "category": "emacs"},
+  "elc": {"language": "Emacs-Lisp", "category": "emacs"},
+  "org": {"language": "Org-Mode", "category": "emacs"},
 
-  "html": {"filetype": "HTML", "category": "web"},
-  "js": {"filetype": "JavaScript", "category": "web"},
-  "json": {"filetype": "JSON", "category": "web"},
-  "scss": {"filetype": "SCSS", "category": "web"},
-  "css": {"filetype": "CSS", "category": "web"},
-  "svg": {"filetype": "SVG", "category": "web"},
+  "html": {"language": "HTML", "category": "web"},
+  "js": {"language": "JavaScript", "category": "web"},
+  "json": {"language": "JSON", "category": "web"},
+  "scss": {"language": "SCSS", "category": "web"},
+  "css": {"language": "CSS", "category": "web"},
+  "svg": {"language": "SVG", "category": "web"},
 
-  "yml": {"filetype": "YAML", "category": "web"},
-  "yaml": {"filetype": "YAML", "category": "web"},
-  "md": {"filetype": "Markdown", "category": "web"},
+  "yml": {"language": "YAML", "category": "web"},
+  "yaml": {"language": "YAML", "category": "web"},
+  "md": {"language": "Markdown", "category": "web"},
 
-  "Gemfile": {"filetype": "Ruby", "category": "web"},
-  "lock": {"filetype": "Ruby", "category": "web"},
-  "rb": {"filetype": "Ruby", "category": "web"},
-  "ru": {"filetype": "Ruby", "category": "web"},
+  "Gemfile": {"language": "Ruby", "category": "web"},
+  "lock": {"language": "Ruby", "category": "web"},
+  "rb": {"language": "Ruby", "category": "web"},
+  "ru": {"language": "Ruby", "category": "web"},
 
-  "Procfile": {"filetype": "Heroku Procfile", "category": "web"},
+  "Procfile": {"language": "Heroku Procfile", "category": "web"},
 
-  "swift": {"filetype": "swift", "category": "ios"},
+  "swift": {"language": "swift", "category": "ios"},
 
-  "txt": {"filetype": "Text File", "category": "other"},
+  "txt": {"language": "Text File", "category": "other"},
 
-  "gitignore": {"filetype": "gitignore", "category": "git"}
+  "gitignore": {"language": "gitignore", "category": "git"}
 }

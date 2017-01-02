@@ -57,7 +57,7 @@ describe('Repo Categorization Tests', function () {
         assert(!isNaN(d.additions) && d.additions >= 0);
         assert(!isNaN(d.deletions) && d.deletions >= 0);
         assert(d.file.classification);
-        assert(d.file.classification.filetype);
+        assert(d.file.classification.language);
         assert(d.file.classification.category);
       });
     });
