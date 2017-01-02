@@ -3,6 +3,7 @@
 const shell = require('shelljs');
 const util = require('util');
 const _ = require('lodash');
+const {Operation,OperationQueue} = require('limitable-operation-queue');
 
 const FileRef = require('./file-ref').FileRef;
 
@@ -91,31 +92,31 @@ class Repo {
     let gitCommand = shell.exec(`git -C ${dir} log --author hershal --format='%H'`,
                                 {silent: true});
     let commitLines = arr(gitCommand.stdout);
-    let promises = new Array();
+
+    let queue = new OperationQueue(10);
+
     for (let line of commitLines) {
-      promises.push(new Promise(
-        (resolve, reject) => {
-          const sha = line;
-          shell
-            .exec(`git -C ${dir} show -w --numstat --diff-filter=ADM ${sha} --date=iso-strict --format='%ad'`,
-                  { silent: true },
-                  (code, stdout, stderr) => {
-                    /* This complexity arises because git cannot format the
-                     * numstat lines for me, thus I have to build this ugliness
-                     * to understand the info that git is giving me. */
-                    let commitStat = arr(stdout);
-                    const date = commitStat.shift();
-                    commitStat.shift(); /* remove the newline */
-                    const commit = new Commit(sha, date, commitStat);
-                    this._commits.push(commit);
-                    this._add += commit.additions;
-                    this._del += commit.deletions;
-                    resolve();
-                  });
-        }
-      ));
+      queue.addOperation(new Operation((done) => {
+        const sha = line;
+        shell
+          .exec(`git -C ${dir} show -w --numstat --diff-filter=ADM ${sha} --date=iso-strict --format='%ad'`,
+                { silent: true },
+                (code, stdout, stderr) => {
+                  /* This complexity arises because git cannot format the
+                   * numstat lines for me, thus I have to build this ugliness
+                   * to understand the info that git is giving me. */
+                  let commitStat = arr(stdout);
+                  const date = commitStat.shift();
+                  commitStat.shift(); /* remove the newline */
+                  const commit = new Commit(sha, date, commitStat);
+                  this._commits.push(commit);
+                  this._add += commit.additions;
+                  this._del += commit.deletions;
+                  done();
+                });
+      }));
     }
-    return Promise.all(promises);
+    return queue.start();
   }
 
   toString() {

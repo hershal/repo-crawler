@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "intelli-espower-loader": "^1.0.1",
+    "limitable-operation-queue": "^0.2.0",
     "lodash": "^4.17.3",
     "mocha": "^3.2.0",
     "power-assert": "^1.4.2",

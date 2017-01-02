@@ -42,7 +42,7 @@ describe('Repo Categorization Tests', function () {
   beforeEach('should create a repo object', function(done) {
     let dir = '../hershal.com';
     repo = new Repo();
-    repo.traverse(dir).then(function () {
+    repo.traverse(dir).then(() => {
       assert(repo.additions > 0 && repo.deletions > 0);
       done();
     });
