@@ -3,7 +3,7 @@
 const _ = require('lodash');
 
 function render(commits) {
-  const rows = generateRows(commits, 'file.classification.language');
+  const rows = generateRows(commits, 'file.classification.category');
 
   let str = '';
   for (let row of rows) {

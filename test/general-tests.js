@@ -12,6 +12,8 @@ const Repo = require('../repo').Repo;
 const FileRef = require('../file-ref').FileRef;
 const CSVRender = require('../csv-renderer');
 
+const {Operation,OperationQueue} = require('../../limitable-operation-queue');
+
 describe('FileDiff Tests', function () {
   it('should create a valid FileDiff object', function () {
     const singleLineDiffStat = '12       49      board-progs/autonomous-racer/common/ir.cpp';
@@ -83,25 +85,48 @@ describe('Repo Categorization Tests', function () {
   });
 });
 
-/* describe('Repositories Directory Full Generation Tests', function () { */
-/*   let repo; */
-/*   let dirs; */
-/*   beforeEach(function () { */
-/*     let dir = '../'; */
-/*     repo = new Repo(); */
-/*     dirs = fs.readdirSync(dir) */
-/*       .map((file => path.join(dir, file))) */
-/*       .filter((file) => fs.statSync(file).isDirectory()); */
-/*   }); */
+describe('Repositories Directory Full Generation Tests', function () {
+  let repo;
+  let dirs;
+  beforeEach(function () {
+    let dir = '../';
+    repo = new Repo();
+    dirs = fs.readdirSync(dir)
+      .map((file => path.join(dir, file)))
+      .filter((file) => fs.statSync(file).isDirectory());
+  });
 
-/*   it('should traverse all repos in dir', function (done) { */
-/*     this.timeout(3000); */
-/*     Promise.all(dirs.map((d) => repo.traverse(d))) */
-/*       .then(() => { */
-/*         const sorted = _.sortBy(repo.commits, 'date'); */
-/*         const rendered = CSVRender.render(sorted); */
-/*         fs.writeFileSync('rendered-full.csv', rendered); */
-/*         done(); */
-/*       }); */
-/*   }); */
-/* }); */
+  for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    it(`should traverse all repos in dir with ${i} threads`, function (done) {
+      this.timeout(360000);
+
+      let queue = new OperationQueue(i);
+
+      dirs.forEach((d) => {
+        queue.addOperation(new Operation((done) => {
+          /* console.log(`starting ${d}`); */
+          repo.traverse(d)
+            .then(() => {
+              /* console.log(`finished ${d}`); */
+              done();
+            });
+        }));
+      });
+
+      queue
+        .start()
+        .then(() => {
+          console.log('sorting...');
+          const sorted = _.sortBy(repo.commits, 'date');
+          console.log('sorting... done.');
+          console.log('rendering...');
+          const rendered = CSVRender.render(sorted);
+          console.log('rendering... done.');
+          console.log('writing...');
+          fs.writeFileSync('rendered-full.csv', rendered);
+          console.log('writing... done.');
+          done();
+        });
+    });
+  }
+});

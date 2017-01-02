@@ -3,7 +3,7 @@
 const shell = require('shelljs');
 const util = require('util');
 const _ = require('lodash');
-const {Operation,OperationQueue} = require('limitable-operation-queue');
+const {Operation,OperationQueue} = require('../limitable-operation-queue');
 
 const FileRef = require('./file-ref').FileRef;
 
@@ -85,7 +85,7 @@ class Repo {
 
   traverse(dir) {
     if (Array.isArray(dir)) {
-      return dir.forEach((d) => this._traverse(dir));
+      return Promise.all(dir.map((d) => this._traverse(dir)));
     } else {
       return this._traverse(dir);
     }
@@ -96,7 +96,7 @@ class Repo {
                                 {silent: true});
     let commitLines = arr(gitCommand.stdout);
 
-    let queue = new OperationQueue(10);
+    let queue = new OperationQueue(1);
 
     for (let line of commitLines) {
       queue.addOperation(new Operation((done) => {
@@ -115,6 +115,7 @@ class Repo {
                   this._commits.push(commit);
                   this._add += commit.additions;
                   this._del += commit.deletions;
+                  /* console.log(`finished ${dir} ${sha}`); */
                   done();
                 });
       }));
