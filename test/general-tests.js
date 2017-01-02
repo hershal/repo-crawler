@@ -116,15 +116,9 @@ describe('Repositories Directory Full Generation Tests', function () {
       queue
         .start()
         .then(() => {
-          console.log('sorting...');
           const sorted = _.sortBy(repo.commits, 'date');
-          console.log('sorting... done.');
-          console.log('rendering...');
           const rendered = CSVRender.render(sorted);
-          console.log('rendering... done.');
-          console.log('writing...');
           fs.writeFileSync('rendered-full.csv', rendered);
-          console.log('writing... done.');
           done();
         });
     });
