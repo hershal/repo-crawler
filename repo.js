@@ -19,11 +19,12 @@ class FileDiff {
   get deletions() { return this._del; }
   get file() { return this._file; }
 
-  constructor(diffstat) {
+  constructor(diffstat, commit) {
     const d = diffstat.replace(/\s+/g, ' ').trim().split(' ');
     this._add = Number.parseInt(d[0]);
     this._del = Number.parseInt(d[1]);
     this._file = new FileRef(d[2]);
+    this._commit = commit;
   }
 
   toString(){
@@ -57,10 +58,12 @@ class Commit {
   /* where commitStats is an array of commit info */
   _traverse(commitstats) {
     for (let stat of commitstats) {
-      let filediff = new FileDiff(stat);
-      this._fileDiffs.push(filediff);
-      this._add += filediff.additions;
-      this._del += filediff.deletions;
+      let filediff = new FileDiff(stat, this.sha);
+      if (filediff.additions > 0 || filediff.deletions > 0) {
+        this. _fileDiffs. push (filediff);
+        this. _add += filediff. additions;
+        this. _del += filediff. deletions;
+      }
     }
   }
 

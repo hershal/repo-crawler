@@ -1,12 +1,15 @@
 'use strict';
 
+const _ = require('lodash');
+
 const assert = require('power-assert');
 const util = require('util');
-const _ = require('lodash');
+const fs = require('fs');
 
 const FileDiff = require('../repo').FileDiff;
 const Repo = require('../repo').Repo;
 const FileRef = require('../file-ref').FileRef;
+const CSVRender = require('../csv-renderer');
 
 describe('FileDiff Tests', function () {
   it('should create a valid FileDiff object', function () {
@@ -64,11 +67,21 @@ describe('Repo Categorization Tests', function () {
   });
 
   it('repo commits sorted by date', function () {
-    const sorted = _.sortBy(repo.commits.sort, 'date');
+    const sorted = _.sortBy(repo.commits, 'date');
     let date = 0;
     sorted.forEach(function (c) {
       assert(c.date > date);
       date = c.date;
     });
   });
+
+  it('put repo commits in buckets', function () {
+    const sorted = _.sortBy(repo.commits, 'date');
+    const rendered = CSVRender.render(sorted);
+    fs.writeFileSync('rendered.csv', rendered);
+  });
+});
+
+describe('Repositories Directory Full Generation Tests', function () {
+
 });
