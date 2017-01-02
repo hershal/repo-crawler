@@ -5,6 +5,7 @@ const _ = require('lodash');
 const assert = require('power-assert');
 const util = require('util');
 const fs = require('fs');
+const path = require('path');
 
 const FileDiff = require('../repo').FileDiff;
 const Repo = require('../repo').Repo;
@@ -27,7 +28,7 @@ describe('FileDiff Tests', function () {
 describe('FileRef Tests', function () {
   let file;
   before('construct a FileRef object', function () {
-      file = new FileRef('/tmp/data.json');
+    file = new FileRef('/tmp/data.json');
   });
 
   it('should have proper structures', function () {
@@ -82,6 +83,25 @@ describe('Repo Categorization Tests', function () {
   });
 });
 
-describe('Repositories Directory Full Generation Tests', function () {
+/* describe('Repositories Directory Full Generation Tests', function () { */
+/*   let repo; */
+/*   let dirs; */
+/*   beforeEach(function () { */
+/*     let dir = '../'; */
+/*     repo = new Repo(); */
+/*     dirs = fs.readdirSync(dir) */
+/*       .map((file => path.join(dir, file))) */
+/*       .filter((file) => fs.statSync(file).isDirectory()); */
+/*   }); */
 
-});
+/*   it('should traverse all repos in dir', function (done) { */
+/*     this.timeout(3000); */
+/*     Promise.all(dirs.map((d) => repo.traverse(d))) */
+/*       .then(() => { */
+/*         const sorted = _.sortBy(repo.commits, 'date'); */
+/*         const rendered = CSVRender.render(sorted); */
+/*         fs.writeFileSync('rendered-full.csv', rendered); */
+/*         done(); */
+/*       }); */
+/*   }); */
+/* }); */
