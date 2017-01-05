@@ -12,7 +12,7 @@ const Repo = require('../repo').Repo;
 const FileRef = require('../file-ref').FileRef;
 const CSVRender = require('../csv-renderer');
 
-const {Operation,OperationQueue} = require('../../limitable-operation-queue');
+const {Operation,OperationQueue} = require('../../adjustable-operation-queue');
 
 describe('FileDiff Tests', function () {
   it('should create a valid FileDiff object', function () {
@@ -46,6 +46,7 @@ describe('Repo Categorization Tests', function () {
   let repo;
 
   beforeEach('should create a repo object', function(done) {
+    this.timeout(4000);
     let dir = '../hershal.com';
     repo = new Repo();
     repo.traverse(dir).then(() => {
@@ -96,31 +97,30 @@ describe('Repositories Directory Full Generation Tests', function () {
       .filter((file) => fs.statSync(file).isDirectory());
   });
 
-  for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-    it(`should traverse all repos in dir with ${i} threads`, function (done) {
-      this.timeout(360000);
+  const i = 3;
+  it(`should traverse all repos in dir with ${i} threads`, function (done) {
+    this.timeout(360000);
 
-      let queue = new OperationQueue(i);
+    let queue = new OperationQueue(i);
 
-      dirs.forEach((d) => {
-        queue.addOperation(new Operation((done) => {
-          /* console.log(`starting ${d}`); */
-          repo.traverse(d)
-            .then(() => {
-              /* console.log(`finished ${d}`); */
-              done();
-            });
-        }));
-      });
-
-      queue
-        .start()
-        .then(() => {
-          const sorted = _.sortBy(repo.commits, 'date');
-          const rendered = CSVRender.render(sorted);
-          fs.writeFileSync('rendered-full.csv', rendered);
-          done();
-        });
+    dirs.forEach((d) => {
+      queue.addOperation(new Operation((done) => {
+        /* console.log(`starting ${d}`); */
+        repo.traverse(d)
+          .then(() => {
+            /* console.log(`finished ${d}`); */
+            done();
+          });
+      }));
     });
-  }
+
+    queue
+      .start()
+      .then(() => {
+        const sorted = _.sortBy(repo.commits, 'date');
+        const rendered = CSVRender.render(sorted);
+        fs.writeFileSync('rendered-full.csv', rendered);
+        done();
+      });
+  });
 });

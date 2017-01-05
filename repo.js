@@ -3,7 +3,7 @@
 const shell = require('shelljs');
 const util = require('util');
 const _ = require('lodash');
-const {Operation,OperationQueue} = require('../limitable-operation-queue');
+const {Operation,OperationQueue} = require('../adjustable-operation-queue');
 
 const FileRef = require('./file-ref').FileRef;
 
