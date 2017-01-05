@@ -5,12 +5,21 @@
   "hpp": {"language": "C++", "category": "systems"},
   "cpp": {"language": "C++", "category": "systems"},
 
+  "Makefile": {"language": "Make", "category": "systems"},
+  "cmake": {"language": "CMake", "category": "systems"},
+
+  "py": {"language": "Python", "category": "systems"},
+
   "el": {"language": "Emacs-Lisp", "category": "emacs"},
   "elc": {"language": "Emacs-Lisp", "category": "emacs"},
   "org": {"language": "Org-Mode", "category": "emacs"},
 
+  "java": {"language": "Java", "category": "java"},
+
   "html": {"language": "HTML", "category": "web"},
+  "hbs": {"language": "Handlebars", "category": "web"},
   "js": {"language": "JavaScript", "category": "web"},
+  "coffee": {"language": "CoffeeScript", "category": "web"},
   "json": {"language": "JSON", "category": "web"},
   "scss": {"language": "SCSS", "category": "web"},
   "css": {"language": "CSS", "category": "web"},
@@ -27,9 +36,17 @@
 
   "Procfile": {"language": "Heroku Procfile", "category": "web"},
 
+  "cls": {"language": "LaTeX", "category": "typesetting"},
+  "sty": {"language": "LaTeX", "category": "typesetting"},
+  "tex": {"language": "LaTeX", "category": "typesetting"},
+  "tikz": {"language": "LaTeX", "category": "typesetting"},
+
+  "m": {"language": "Octave", "category": "math"},
+
   "swift": {"language": "swift", "category": "ios"},
+  "plist": {"language": "swift", "category": "ios"},
 
-  "txt": {"language": "Text File", "category": "other"},
+  "gitignore": {"language": "gitignore", "category": "git"},
 
-  "gitignore": {"language": "gitignore", "category": "git"}
+  "txt": {"language": "Text File", "category": "other"}
 }
