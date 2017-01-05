@@ -20,6 +20,7 @@
   "hbs": {"language": "Handlebars", "category": "web"},
   "js": {"language": "JavaScript", "category": "web"},
   "coffee": {"language": "CoffeeScript", "category": "web"},
+  "ts": {"language": "TypeScript", "category": "web"},
   "json": {"language": "JSON", "category": "web"},
   "scss": {"language": "SCSS", "category": "web"},
   "css": {"language": "CSS", "category": "web"},
