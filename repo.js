@@ -86,11 +86,11 @@ class Repo {
     this._commits = new Array();
     this._add = 0;
     this._del = 0;
-    this._dir = dir;
+    this._dir = new FileRef(dir);
   }
 
   scan() {
-    let dir = this._dir;
+    let dir = this.dir.path;
     let gitCommand = shell.exec(`git -C ${dir} log --author Hershal --format='%H'`,
                                 {silent: true});
     let commitLines = arr(gitCommand.stdout);

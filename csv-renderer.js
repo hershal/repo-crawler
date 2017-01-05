@@ -20,6 +20,7 @@ function generateRows(repos) {
         row.push(date.valueOf());
         row.push(date.toString());
         row.push(sha);
+        row.push(repo.dir.name);
         row.push(diff.additions);
         row.push(diff.deletions);
         row.push(diff.additions + diff.deletions);
