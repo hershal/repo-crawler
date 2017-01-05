@@ -120,7 +120,18 @@ describe('Repositories Directory Full Generation Tests', function () {
         const sorted = _.sortBy(repo.commits, 'date');
         const rendered = CSVRender.render(sorted);
         fs.writeFileSync('rendered-full.csv', rendered);
+
+        let unknownFileTypes = unknownFileTypesFromCommits(repo.commits);
+        console.log(unknownFileTypes);
         done();
       });
   });
 });
+
+function unknownFileTypesFromCommits(commits) {
+  return commits
+    .map((c) => c.fileDiffs.filter((d) => !d.file.classification || !d.file.classification.category))
+    .filter((c) => c.length > 0)
+    .reduce((a, c) => a.concat(c), new Array())
+    .reduce((a, d) => a.add(d.file.extension), new Set());
+}
