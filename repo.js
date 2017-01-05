@@ -1,11 +1,15 @@
 'use strict';
 
-const shell = require('shelljs');
-const util = require('util');
 const _ = require('lodash');
-const {Operation,OperationQueue} = require('../adjustable-operation-queue');
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
+const shell = require('shelljs');
 
+const {Operation,OperationQueue} = require('../adjustable-operation-queue');
 const FileRef = require('./file-ref').FileRef;
+
+const parallelism = 2;
 
 function arr(output) {
   return _(output.split('\n'))
@@ -47,7 +51,7 @@ class Commit {
     this._add = 0;
     this._del = 0;
     if (Array.isArray(commitstat)) {
-      this._traverse(commitstat);
+      this._scan(commitstat);
     } else {
       /* just give up */
       console.log(`commitstat not an array:\n${commitstat}`);
@@ -56,7 +60,7 @@ class Commit {
   }
 
   /* where commitStats is an array of commit info */
-  _traverse(commitstats) {
+  _scan(commitstats) {
     for (let stat of commitstats) {
       let filediff = new FileDiff(stat, this.sha);
       if (filediff.additions > 0 || filediff.deletions > 0) {
@@ -73,30 +77,25 @@ class Commit {
 }
 
 class Repo {
+  get dir() { return this._dir; }
   get commits() { return this._commits; }
   get additions() { return this._add; }
   get deletions() { return this._del; }
 
-  constructor() {
+  constructor(dir) {
     this._commits = new Array();
     this._add = 0;
     this._del = 0;
+    this._dir = dir;
   }
 
-  traverse(dir) {
-    if (Array.isArray(dir)) {
-      return Promise.all(dir.map((d) => this._traverse(dir)));
-    } else {
-      return this._traverse(dir);
-    }
-  }
-
-  _traverse(dir) {
-    let gitCommand = shell.exec(`git -C ${dir} log --author hershal --format='%H'`,
+  scan() {
+    let dir = this._dir;
+    let gitCommand = shell.exec(`git -C ${dir} log --author Hershal --format='%H'`,
                                 {silent: true});
     let commitLines = arr(gitCommand.stdout);
 
-    let queue = new OperationQueue(1);
+    let queue = new OperationQueue(parallelism);
 
     for (let line of commitLines) {
       queue.addOperation(new Operation((done) => {
@@ -128,3 +127,35 @@ class Repo {
   }
 }
 module.exports.Repo = Repo;
+
+class Scanner {
+  get repos() { return this._repos; }
+
+  constructor() {
+    this._repos = new Array();
+  }
+
+  scan(dir) {
+    let dirs = fs.readdirSync(dir)
+        .map((file => path.join(dir, file)))
+        .filter((file) => fs.statSync(file).isDirectory());
+
+    let queue = new OperationQueue(parallelism);
+
+    dirs.forEach((d) => {
+      queue.addOperation(new Operation((done) => {
+        console.log(`starting ${d}`);
+        let repo = new Repo(d);
+        this._repos.push(repo);
+        repo.scan()
+          .then(() => {
+            console.log(`finished ${d}`);
+            done();
+          });
+      }));
+    });
+
+    return queue.start();
+  }
+}
+module.exports.Scanner = Scanner;

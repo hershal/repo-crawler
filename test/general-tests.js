@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const FileDiff = require('../repo').FileDiff;
+const Scanner = require('../repo').Scanner;
 const Repo = require('../repo').Repo;
 const FileRef = require('../file-ref').FileRef;
 const CSVRender = require('../csv-renderer');
@@ -42,14 +43,14 @@ describe('FileRef Tests', function () {
 });
 
 
-describe('Repo Categorization Tests', function () {
+xdescribe('Scanner Categorization Tests', function () {
   let repo;
 
   beforeEach('should create a repo object', function(done) {
     this.timeout(4000);
     let dir = '../hershal.com';
-    repo = new Repo();
-    repo.traverse(dir).then(() => {
+    repo = new Repo(dir);
+    repo.scan().then(() => {
       assert(repo.additions > 0 && repo.deletions > 0);
       done();
     });
@@ -86,46 +87,22 @@ describe('Repo Categorization Tests', function () {
   });
 });
 
-describe('Repositories Directory Full Generation Tests', function () {
-  let repo;
-  let dirs;
-  beforeEach(function () {
-    let dir = '../';
-    repo = new Repo();
-    dirs = fs.readdirSync(dir)
-      .map((file => path.join(dir, file)))
-      .filter((file) => fs.statSync(file).isDirectory());
+describe('Scanning Directory Full of Repos', function () {
+  let scanner;
+  before(function (done) {
+    this.timeout(4000);
+    scanner = new Scanner();
+    scanner.scan('/Users/hershal/tmp/repos/').then(() => done());
   });
 
-  const i = 3;
-  it(`should traverse all repos in dir with ${i} threads`, function (done) {
-    this.timeout(360000);
-
-    let queue = new OperationQueue(i);
-
-    dirs.forEach((d) => {
-      queue.addOperation(new Operation((done) => {
-        /* console.log(`starting ${d}`); */
-        repo.traverse(d)
-          .then(() => {
-            /* console.log(`finished ${d}`); */
-            done();
-          });
-      }));
-    });
-
-    queue
-      .start()
-      .then(() => {
-        const sorted = _.sortBy(repo.commits, 'date');
-        const rendered = CSVRender.render(sorted);
-        fs.writeFileSync('rendered-full.csv', rendered);
-
-        let unknownFileTypes = unknownFileTypesFromCommits(repo.commits);
-        console.log(unknownFileTypes);
-        done();
-      });
+  it('should scan a whole dir of repos', function () {
+    assert(scanner.repos.length > 0);
   });
+
+  it('should render repos', function () {
+    let rendered = CSVRender.render(scanner.repos);
+  });
+
 });
 
 function unknownFileTypesFromCommits(commits) {

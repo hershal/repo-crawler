@@ -2,47 +2,33 @@
 
 const _ = require('lodash');
 
-function render(commits) {
-  const rows = generateRows(commits, 'file.classification.category');
-
-  let str = '';
-  for (let row of rows) {
-    str += row.join(',') + '\n';
-  }
-
-  return str;
+function render(repos) {
+  const rows = generateRows(repos);
+  console.log(rows);;
 }
 module.exports.render = render;
 
-function generateRows(commits, keypath) {
-  const uniqueKeys = unionCommitsByKeypath(commits, keypath);
-
+function generateRows(repos) {
+  /* oh god */
   let rows = new Array();
-
-  /* this is ugly */
-  let firstline = commits.map((c) => c.date.valueOf());
-  firstline.unshift(keypath);
-  /* end ugliness */
-
-  rows.push(firstline);
-
-  for (let key of uniqueKeys) {
-    let row = commits.map((c) => {
-      return c.fileDiffs
-        .filter((d) => _.get(d, keypath) == key)
-        .reduce((a, d) => a + d.additions + d.deletions, 0);
-    });
-    row.unshift(key);
-    rows.push(row);
+  for (let repo of repos) {
+    for (let commit of repo.commits) {
+      let date = commit.date;
+      let sha = commit.sha;
+      for (let diff of commit.fileDiffs) {
+        let row = new Array();
+        row.push(date.valueOf());
+        row.push(date.toString());
+        row.push(sha);
+        row.push(diff.additions);
+        row.push(diff.deletions);
+        row.push(diff.additions + diff.deletions);
+        row.push(diff.file.path);
+        row.push(diff.file.classification ? diff.file.classification.category : 'unknown');
+        row.push(diff.file.classification ? diff.file.classification.language : 'unknown');
+        rows.push(row);
+      }
+    }
   }
-
   return rows;
-}
-
-function unionCommitsByKeypath(commits, keypath) {
-  return commits.reduce((ac, c) => {
-    return _.union(ac, c.fileDiffs.reduce((ad, d) => {
-      return _.union(ad, [_.get(d, keypath)]);
-    }, new Array()));
-  }, new Array());
 }
