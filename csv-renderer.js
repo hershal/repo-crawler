@@ -4,7 +4,8 @@ const _ = require('lodash');
 
 function render(repos) {
   const rows = generateRows(repos);
-  console.log(rows);;
+  let str = rows.map((r) => r.join(',')).join('\n');
+  return str;
 }
 module.exports.render = render;
 

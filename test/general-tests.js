@@ -101,6 +101,7 @@ describe('Scanning Directory Full of Repos', function () {
 
   it('should render repos', function () {
     let rendered = CSVRender.render(scanner.repos);
+    fs.writeFileSync('rendered-tmp.csv', rendered);
   });
 
 });
