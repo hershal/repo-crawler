@@ -17,6 +17,7 @@ function generateRows(repos) {
       let date = commit.date;
       let sha = commit.sha;
       for (let diff of commit.fileDiffs) {
+        if (!diff.file.classification) { continue; }
         let row = new Array();
         row.push(date.valueOf());
         row.push(date.toString());
@@ -26,8 +27,8 @@ function generateRows(repos) {
         row.push(diff.deletions);
         row.push(diff.additions + diff.deletions);
         row.push(diff.file.path);
-        row.push(diff.file.classification ? diff.file.classification.category : 'unknown');
-        row.push(diff.file.classification ? diff.file.classification.language : 'unknown');
+        row.push(diff.file.classification.language);
+        row.push(diff.file.classification.category);
         rows.push(row);
       }
     }
