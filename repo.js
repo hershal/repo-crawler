@@ -32,7 +32,7 @@ class FileDiff {
   }
 
   toString(){
-    return `FileDiff: (${this.filepath}: ${this.additions}+ ${this.deletions}-)`;
+    return `FileDiff: (${this.file.path}: ${this.additions}+ ${this.deletions}-)`;
   };
 }
 module.exports.FileDiff = FileDiff;
