@@ -92,7 +92,7 @@ describe('Scanning Directory Full of Repos', function () {
   before(function (done) {
     this.timeout(4000);
     scanner = new Scanner();
-    scanner.scan('/Users/hershal/tmp/repos/').then(() => done());
+    scanner.scan(process.env.HOME + '/tmp/repos/').then(() => done());
   });
 
   it('should scan a whole dir of repos', function () {
