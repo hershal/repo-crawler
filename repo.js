@@ -109,7 +109,6 @@ class Repo {
                    * to understand the info that git is giving me. */
                   let commitStat = arr(stdout);
                   const date = commitStat.shift();
-                  commitStat.shift(); /* remove the newline */
                   const commit = new Commit(sha, date, commitStat);
                   this._commits.push(commit);
                   this._add += commit.additions;
