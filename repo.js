@@ -91,7 +91,7 @@ class Repo {
 
   scan() {
     let dir = this.dir.path;
-    let gitCommand = shell.exec(`git -C ${dir} log --author Hershal --format='%H'`,
+    let gitCommand = shell.exec(`git -C ${dir} log --author Hershal --format='%H' --no-merges`,
                                 {silent: true});
     let commitLines = arr(gitCommand.stdout);
 
