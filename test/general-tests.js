@@ -90,7 +90,7 @@ xdescribe('Scanner Categorization Tests', function () {
 describe('Scanning Directory Full of Repos', function () {
   let scanner;
   before(function (done) {
-    this.timeout(4000);
+    this.timeout(36000);
     scanner = new Scanner();
     scanner.scan(process.env.HOME + '/tmp/repos/').then(() => done());
   });
