@@ -14,6 +14,7 @@ const FlatDiff = require('../flat-diff').FlatDiff;
 const Repo = require('../repo').Repo;
 const ScalableNumber = require('../flat-diff').ScalableNumber;
 const Scanner = require('../repo').Scanner;
+const FlatDiffsMerger = require('../flat-diff').FlatDiffsMerger;
 
 const SVGRender = require('../svg-renderer');
 
@@ -216,7 +217,8 @@ describe('Scanner Categorization Tests', function () {
   });
 
   it('should render into svg', function () {
-    let rendered = SVGRender.render(800, 600, flatDiffs);
+    let diffs = FlatDiffsMerger.merge(flatDiffs);
+    let rendered = SVGRender.render(800, 600, diffs);
     console.log(rendered);
   });
 });

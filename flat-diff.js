@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const util = require('util');
 
+const Constants = require('./constants');
 const FileDiff = require('./repo');
 
 /* Objects model behaviors, not data */
@@ -84,7 +85,7 @@ class FlatDiff {
     if (this.date.value != flatDiff.date.value) { return false; }
 
     const getClassifications = (files) => {
-        return files.map((f) => f.classification[this.mergeCriteria])
+      return files.map((f) => f.classification[this.mergeCriteria])
         .reduce((a, f) => a.add(f), new Set());
     };
 
@@ -117,3 +118,35 @@ class FlatDiff {
   }
 }
 module.exports.FlatDiff = FlatDiff;
+
+module.exports.FlatDiffsMerger = {
+  merge: function (flatDiffs) {
+    flatDiffs = flatDiffs.slice(0);
+
+    /* filter out the diffs which we could not categorize */
+    flatDiffs = flatDiffs.filter((d) => d.file.reduce((a, f) => f.classification ? true : false), false);
+
+    /* quantize to day */
+    flatDiffs.forEach((d) => d.date.scale(1.0/Constants.msPerDay).round());
+
+    /* sort */
+    /* oldest commit is the first now */
+    flatDiffs = flatDiffs.sort((a, b) => a.date.value - b.date.value );
+
+    /* rescale */
+    const dist = flatDiffs[0].date.value;
+    flatDiffs.forEach((d) => d.date.translate(-dist));
+
+    /* merge */
+    flatDiffs = flatDiffs.reduce((a, d) => {
+      let last = a[a.length-1];
+      if (!last || !last.merge(d)) {
+        a.push(d);
+      }
+      return a;
+    }, new Array());
+
+    flatDiffs.sort((a, b) => a.date - b.date).reverse();
+    return flatDiffs;
+  }
+};
