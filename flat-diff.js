@@ -1,5 +1,8 @@
 'use strict';
 
+const _ = require('lodash');
+const util = require('util');
+
 const FileDiff = require('./repo');
 
 /* Objects model behaviors, not data */
@@ -61,38 +64,52 @@ class FlatDiff {
   get file() { return this._file; }
 
   constructor(diff) {
-    this.mergeClassificationCriteria = 'language';
+    this.mergeCriteria = 'language';
 
     if (diff instanceof FileDiff.FileDiff) {
       this._root = diff.commit.repo.dir;
-      this._sha = diff.commit.sha;
-      this._file = diff.file;
+      this._sha = [diff.commit.sha];
+      this._file = [diff.file];
 
       /* mutable members */
       this.additions = new ScalableNumber(diff.additions);
       this.deletions = new ScalableNumber(diff.deletions);
       this.date = new ScalableNumber(diff.commit.date);
+    } else {
+      console.log('constructing FlatDiff from nothing!');
     }
   }
 
   canMerge(flatDiff) {
+    if (this.date.value != flatDiff.date.value) { return false; }
 
+    const getClassifications = (files) => {
+        return files.map((f) => f.classification[this.mergeCriteria])
+        .reduce((a, f) => a.add(f), new Set());
+    };
+
+    let ourClassifications = getClassifications(this.file);
+    let theirClassifications = getClassifications(flatDiff.file);
+
+    if (ourClassifications.values().length > 1) {
+      console.log('too many items in flatdiff: ' + this);
+      console.log(ourClassifications);
+    }
+
+    if (theirClassifications.values().length > 1) {
+      console.log('too many items in flatdiff: ' + flatDiff);
+      console.log(theirClassifications);
+    }
+
+    return _.isEqual(ourClassifications, theirClassifications);
   }
 
   merge(flatDiff) {
     if (this.canMerge(flatDiff)) {
       this.additions.translate(flatDiff.additions.value);
       this.deletions.translate(flatDiff.deletions.value);
-      this._sha = `${this.sha} + ${flatDiff.sha}`;
-
-      if (Array.isArray(this.file)) {
-        this._file.push(flatDiff.file);
-      } else {
-        let file = new Array();
-        file.push(this._file);
-        file.push(flatDiff.file);
-        this._file = file;
-      }
+      this._sha = this._sha.concat(flatDiff.sha);
+      this._file = this._file.concat(flatDiff.file);
       return true;
     } else {
       return false;
