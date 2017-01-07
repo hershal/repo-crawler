@@ -57,10 +57,17 @@ describe('ScalableNumber tests', function () {
     assert(number.value == value);
   });
 
-  it('should rescale a number', function () {
+  it('should scale a number', function () {
     let scaled = number.scaled(0.5);
     assert(scaled);
     assert(scaled.value == value * 0.5);
+  });
+
+  it('should scale a number in-place', function () {
+    assert(number.value == value);
+    number.scale(0.5);
+    assert(number);
+    assert(number.value == value * 0.5);
   });
 });
 

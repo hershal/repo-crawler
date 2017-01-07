@@ -2,6 +2,7 @@
 
 const FileDiff = require('./repo');
 
+/* Objects model behaviors, not data */
 class ScalableNumber {
   get value() { return this._value; }
 
@@ -18,15 +19,23 @@ class ScalableNumber {
     return typeof(a) == 'number';
   }
 
+  scale(fnOrNumber) {
+    this._value = this._scale(fnOrNumber);
+  }
+
   scaled(fnOrNumber) {
+    return new ScalableNumber(this._scale(fnOrNumber));
+  }
+
+  _scale(fnOrNumber) {
     if (this.isFunction(fnOrNumber)) {
-      return new ScalableNumber(fnOrNumber(this.value));
+      return fnOrNumber(this.value);
     } else if (this.isNumber(fnOrNumber)) {
-      return new ScalableNumber(this.value * fnOrNumber);
+      return this.value * fnOrNumber;
     }
 
     console.log(`Could not rescale number ${this.value} by ${fnOrNumber}.`);
-    return undefined;
+    return this.value;
   }
 }
 module.exports.ScalableNumber = ScalableNumber;
