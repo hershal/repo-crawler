@@ -22,6 +22,7 @@ class FileDiff {
   get additions() { return this._add; }
   get deletions() { return this._del; }
   get file() { return this._file; }
+  get commit() { return this._commit; }
 
   constructor(diffstat, commit) {
     const d = diffstat.replace(/\s+/g, ' ').trim().split(' ');
@@ -43,13 +44,15 @@ class Commit {
   get fileDiffs() { return this._fileDiffs; }
   get additions() { return this._add; }
   get deletions() { return this._del; }
+  get repo() { return this._repo; }
 
-  constructor(sha, date, commitstat) {
+  constructor(sha, date, commitstat, repo) {
     this._sha = sha;
     this._date = new Date(date);
     this._fileDiffs = new Array();
     this._add = 0;
     this._del = 0;
+    this._repo = repo;
     if (Array.isArray(commitstat)) {
       this._scan(commitstat);
     } else {
@@ -62,7 +65,7 @@ class Commit {
   /* where commitStats is an array of commit info */
   _scan(commitstats) {
     for (let stat of commitstats) {
-      let filediff = new FileDiff(stat, this.sha);
+      let filediff = new FileDiff(stat, this.sha, this);
       if (filediff.additions > 0 || filediff.deletions > 0) {
         this. _fileDiffs. push (filediff);
         this. _add += filediff. additions;
@@ -109,7 +112,7 @@ class Repo {
                    * to understand the info that git is giving me. */
                   let commitStat = arr(stdout);
                   const date = commitStat.shift();
-                  const commit = new Commit(sha, date, commitStat);
+                  const commit = new Commit(sha, date, commitStat, this);
                   this._commits.push(commit);
                   this._add += commit.additions;
                   this._del += commit.deletions;

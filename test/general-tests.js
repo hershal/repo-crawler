@@ -61,12 +61,14 @@ describe('Scanner Categorization Tests', function () {
     repo.commits.forEach((c) => {
       assert(c.date > 0);
       assert(c.sha.length == 40);
+      assert(c.repo);
       c.fileDiffs.forEach((d) => {
         assert(!isNaN(d.additions) && d.additions >= 0);
         assert(!isNaN(d.deletions) && d.deletions >= 0);
         assert(d.file.classification);
         assert(d.file.classification.language);
         assert(d.file.classification.category);
+        assert(d.commit);
       });
     });
   });
