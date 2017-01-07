@@ -15,6 +15,8 @@ const Repo = require('../repo').Repo;
 const ScalableNumber = require('../flat-diff').ScalableNumber;
 const Scanner = require('../repo').Scanner;
 
+const SVGRender = require('../svg-renderer');
+
 const {Operation,OperationQueue} = require('../../adjustable-operation-queue');
 
 describe('FileDiff Tests', function () {
@@ -139,6 +141,11 @@ describe('Scanner Categorization Tests', function () {
       assert(d.deletions);
       assert(d.date);
     });
+  });
+
+  it('should render into svg', function () {
+    let rendered = SVGRender.render(800, 600, flatDiffs);
+    console.log(rendered);
   });
 });
 
