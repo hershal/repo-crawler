@@ -3,15 +3,15 @@
 const _ = require('lodash');
 
 const assert = require('power-assert');
-const util = require('util');
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
 
-const FileDiff = require('../repo').FileDiff;
-const Scanner = require('../repo').Scanner;
-const Repo = require('../repo').Repo;
-const FileRef = require('../file-ref').FileRef;
 const CSVRender = require('../csv-renderer');
+const FileDiff = require('../repo').FileDiff;
+const FileRef = require('../file-ref').FileRef;
+const Repo = require('../repo').Repo;
+const Scanner = require('../repo').Scanner;
 
 const {Operation,OperationQueue} = require('../../adjustable-operation-queue');
 
