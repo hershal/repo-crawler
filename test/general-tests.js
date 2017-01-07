@@ -63,6 +63,22 @@ describe('ScalableNumber tests', function () {
     assert(number);
     assert(number.value == value * 0.5);
   });
+
+  it('should snap a number in-place', function () {
+    assert(number.value == value);
+    number.snap(0.5);
+    assert(number.value == value);
+
+    const interval = 0.4;
+
+    /* Addition causes roundoff errors which lead to an incorrect assertion even
+     * though the numbers are *roughly* equal. Hence we use a multiplier. */
+    let multiplier = 0;
+    while (((multiplier + 1) * interval) < value) { multiplier++; }
+
+    number.snap(interval);
+    assert(number.value == (interval * multiplier));
+  });
 });
 
 

@@ -27,7 +27,12 @@ class ScalableNumber {
     }
 
     console.log(`Could not rescale number ${this.value} by ${fnOrNumber}.`);
-    return this.value;
+  }
+
+  /* Snap to the lowest value within a the next highest and next lowest multiple
+   * of the interval. */
+  snap(interval) {
+    this._value -= this._value % interval;
   }
 }
 module.exports.ScalableNumber = ScalableNumber;
