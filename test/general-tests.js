@@ -43,7 +43,7 @@ describe('FileRef Tests', function () {
 });
 
 
-xdescribe('Scanner Categorization Tests', function () {
+describe('Scanner Categorization Tests', function () {
   let repo;
 
   beforeEach('should create a repo object', function(done) {
@@ -81,8 +81,7 @@ xdescribe('Scanner Categorization Tests', function () {
   });
 
   it('put repo commits in buckets', function () {
-    const sorted = _.sortBy(repo.commits, 'date');
-    const rendered = CSVRender.render(sorted);
+    const rendered = CSVRender.render([repo]);
     fs.writeFileSync('rendered.csv', rendered);
   });
 });
