@@ -49,18 +49,12 @@ describe('ScalableNumber tests', function () {
   let number;
   let value = 10.0;
 
-  before(function () {
+  beforeEach(function () {
     number = new ScalableNumber(value);
   });
 
   it('should have proper structures', function () {
     assert(number.value == value);
-  });
-
-  it('should scale a number', function () {
-    let scaled = number.scaled(0.5);
-    assert(scaled);
-    assert(scaled.value == value * 0.5);
   });
 
   it('should scale a number in-place', function () {

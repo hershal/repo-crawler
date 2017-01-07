@@ -20,18 +20,10 @@ class ScalableNumber {
   }
 
   scale(fnOrNumber) {
-    this._value = this._scale(fnOrNumber);
-  }
-
-  scaled(fnOrNumber) {
-    return new ScalableNumber(this._scale(fnOrNumber));
-  }
-
-  _scale(fnOrNumber) {
     if (this.isFunction(fnOrNumber)) {
-      return fnOrNumber(this.value);
+      this._value = fnOrNumber(this.value);
     } else if (this.isNumber(fnOrNumber)) {
-      return this.value * fnOrNumber;
+      this._value = this.value * fnOrNumber;
     }
 
     console.log(`Could not rescale number ${this.value} by ${fnOrNumber}.`);
