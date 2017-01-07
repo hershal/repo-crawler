@@ -68,13 +68,17 @@ describe('ScalableNumber tests', function () {
 
 describe('Scanner Categorization Tests', function () {
   let repo;
+  let flatDiffs;
 
-  beforeEach('should create a repo object', function(done) {
+  before('should create a repo object', function(done) {
     this.timeout(4000);
     let dir = '../hershal.com';
     repo = new Repo(dir);
     repo.scan().then(() => {
       assert(repo.additions > 0 && repo.deletions > 0);
+      flatDiffs = repo.commits
+        .map((c) => c.fileDiffs.map((d) => d.flatten()))
+        .reduce((a, c) => a.concat(c), []);
       done();
     });
   });
@@ -111,16 +115,13 @@ describe('Scanner Categorization Tests', function () {
   });
 
   it('should flatten FileDiffs into FlatDiffs', function () {
-    let flatCommits = repo.commits
-        .map((c) => c.fileDiffs.map((d) => d.flatten()))
-        .reduce((a, c) => a.concat(c), []);
-    flatCommits.forEach((fc) => {
-      assert(fc.root);
-      assert(fc.sha);
-      assert(fc.file);
-      assert(fc.additions);
-      assert(fc.deletions);
-      assert(fc.date);
+    flatDiffs.forEach((d) => {
+      assert(d.root);
+      assert(d.sha);
+      assert(d.file);
+      assert(d.additions);
+      assert(d.deletions);
+      assert(d.date);
     });
   });
 });
