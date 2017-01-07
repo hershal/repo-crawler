@@ -8,6 +8,7 @@ const shell = require('shelljs');
 
 const {Operation,OperationQueue} = require('../adjustable-operation-queue');
 const FileRef = require('./file-ref').FileRef;
+const FlatDiff = require('./flat-diff').FlatDiff;
 
 const parallelism = 2;
 
@@ -32,9 +33,13 @@ class FileDiff {
     this._commit = commit;
   }
 
-  toString(){
+  toString() {
     return `FileDiff: (${this.file.path}: ${this.additions}+ ${this.deletions}-)`;
   };
+
+  flatten() {
+    return new FlatDiff(this);
+  }
 }
 module.exports.FileDiff = FileDiff;
 
@@ -65,11 +70,11 @@ class Commit {
   /* where commitStats is an array of commit info */
   _scan(commitstats) {
     for (let stat of commitstats) {
-      let filediff = new FileDiff(stat, this.sha, this);
+      let filediff = new FileDiff(stat, this);
       if (filediff.additions > 0 || filediff.deletions > 0) {
-        this. _fileDiffs. push (filediff);
-        this. _add += filediff. additions;
-        this. _del += filediff. deletions;
+        this._fileDiffs.push(filediff);
+        this. _add += filediff.additions;
+        this._del += filediff.deletions;
       }
     }
   }

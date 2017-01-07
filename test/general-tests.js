@@ -10,7 +10,9 @@ const util = require('util');
 const CSVRender = require('../csv-renderer');
 const FileDiff = require('../repo').FileDiff;
 const FileRef = require('../file-ref').FileRef;
+const FlatDiff = require('../flat-diff').FlatDiff;
 const Repo = require('../repo').Repo;
+const ScalableNumber = require('../flat-diff').ScalableNumber;
 const Scanner = require('../repo').Scanner;
 
 const {Operation,OperationQueue} = require('../../adjustable-operation-queue');
@@ -43,6 +45,26 @@ describe('FileRef Tests', function () {
 });
 
 
+describe('ScalableNumber tests', function () {
+  let number;
+  let value = 10.0;
+
+  before(function () {
+    number = new ScalableNumber(value);
+  });
+
+  it('should have proper structures', function () {
+    assert(number.value == value);
+  });
+
+  it('should rescale a number', function () {
+    let scaled = number.scaled(0.5);
+    assert(scaled);
+    assert(scaled.value == value * 0.5);
+  });
+});
+
+
 describe('Scanner Categorization Tests', function () {
   let repo;
 
@@ -56,7 +78,7 @@ describe('Scanner Categorization Tests', function () {
     });
   });
 
-  it('should have known classification' , function () {
+  it('should have all relevant properties' , function () {
     assert(repo.commits.length > 0);
     repo.commits.forEach((c) => {
       assert(c.date > 0);
@@ -85,6 +107,20 @@ describe('Scanner Categorization Tests', function () {
   it('put repo commits in buckets', function () {
     const rendered = CSVRender.render([repo]);
     fs.writeFileSync('rendered.csv', rendered);
+  });
+
+  it('should flatten FileDiffs into FlatDiffs', function () {
+    let flatCommits = repo.commits
+        .map((c) => c.fileDiffs.map((d) => d.flatten()))
+        .reduce((a, c) => a.concat(c), []);
+    flatCommits.forEach((fc) => {
+      assert(fc.root);
+      assert(fc.sha);
+      assert(fc.file);
+      assert(fc.additions);
+      assert(fc.deletions);
+      assert(fc.date);
+    });
   });
 });
 
