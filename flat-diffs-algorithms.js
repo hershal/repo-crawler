@@ -10,9 +10,9 @@ module.exports = {
       .groupBy((d) => d.date.value)
       .map((diffs, time) => {
         return diffs.reduce((a, d) => {
-          a.forEach((ad) => {
+          for (let ad of a) {
             if (ad.merge(d)) { return a; }
-          });
+          }
           a.push(d);
           return a;
         }, new Array());

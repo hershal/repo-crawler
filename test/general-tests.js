@@ -234,6 +234,7 @@ describe('Scanner Categorization Tests', function () {
   it('should merge cleanly', function () {
     let what = FlatDiffsAlgorithms.merge(scaledFlatDiffs);
     console.log(util.inspect(what, {depth: null, maxArrayLength: null}));
+    console.log(what.length);
   });
 
   it('should render into svg', function () {
