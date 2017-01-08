@@ -5,8 +5,8 @@ const _ = require('lodash');
 const Constants = require('./constants.json');
 
 module.exports = {
-  merge: function (flatDiffs) {
-    return _(flatDiffs.slice(0))
+  merged: function (flatDiffs) {
+    return _(flatDiffs)
       .groupBy((d) => d.date.value)
       .map((diffs, time) => {
         return diffs.reduce((a, d) => {
@@ -19,18 +19,16 @@ module.exports = {
       })
       .value();
   },
-
-  scaleDates: function (flatDiffs) {
-    flatDiffs = flatDiffs.slice(0);
-
+  scaledDates: function (flatDiffs) {
     const minDate = flatDiffs.reduce(
       (a, d) => a > d.date.value ? d.date.value : a, Number.MAX_SAFE_INTEGER);
 
-    flatDiffs
-      .forEach((d) => d.date
-               .translate(-minDate)
-               .scale(1.0/Constants.msPerDay)
-               .floor());
-    return flatDiffs;
+    return flatDiffs.map((d) => {
+      d.date = d.date
+        .translated(-minDate)
+        .scaled(1.0/Constants.msPerDay)
+        .floored();
+      return d;
+    });
   }
 };

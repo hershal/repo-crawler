@@ -60,16 +60,17 @@ describe('ScalableNumber tests', function () {
     assert(number.value == value);
   });
 
-  it('should scale a number in-place', function () {
+  it('should scale a number', function () {
     assert(number.value == value);
-    assert(number.scale(0.5).value == value * 0.5);
-    assert(number.value == value * 0.5);
+    let scaled = number.scaled(0.5);
+    assert(scaled.value == value * 0.5);
+    assert(scaled.value != number.value);
   });
 
-  it('should snap a number in-place', function () {
+  it('should snap a number', function () {
     assert(number.value == value);
-    number.snap(0.5);
-    assert(number.value == value);
+    let snapped = number.snapped(0.5);
+    assert(snapped.value == value);
 
     const interval = 0.4;
 
@@ -78,21 +79,21 @@ describe('ScalableNumber tests', function () {
     let multiplier = 0;
     while (((multiplier + 1) * interval) < value) { multiplier++; }
 
-    number.snap(interval);
-    assert(number.value == (interval * multiplier));
+    snapped = number.snapped(interval);
+    assert(snapped.value == (interval * multiplier));
   });
 
-  it('should round a number in-place', function () {
+  it('should round a number', function () {
     const interval = 1/6;
-    let rounded = number.scale(interval).round();
-    assert(rounded.value == number.value);
+    let rounded = number.scaled(interval).rounded();
+    assert(rounded.value != number.value);
     assert(rounded.value == Math.round(interval * value));
   });
 
-  it('should floor a number in-place', function () {
+  it('should floor a number', function () {
     const interval = 1/6;
-    let floored = number.scale(interval).floor();
-    assert(floored.value == number.value);
+    let floored = number.scaled(interval).floored();
+    assert(floored.value != number.value);
     assert(floored.value == Math.floor(interval * value));
   });
 });
@@ -170,7 +171,7 @@ describe('FlatDiff tests', function () {
 
 
 describe('Scanner Categorization Tests', function () {
-  let repo, flatDiffs, scaledFlatDiffs;
+  let repo, flatDiffs;
 
   before('should create a repo object', function(done) {
     this.timeout(4000);
@@ -182,8 +183,6 @@ describe('Scanner Categorization Tests', function () {
       flatDiffs = repo.commits
         .map((c) => c.fileDiffs.map((d) => d.flatten()))
         .reduce((a, c) => a.concat(c), []);
-
-      scaledFlatDiffs = FlatDiffsAlgorithms.scaleDates(flatDiffs);
       done();
     });
   });
@@ -232,9 +231,10 @@ describe('Scanner Categorization Tests', function () {
   });
 
   it('should merge cleanly', function () {
-    let what = FlatDiffsAlgorithms.merge(scaledFlatDiffs);
-    console.log(util.inspect(what, {depth: null, maxArrayLength: null}));
-    console.log(what.length);
+    let scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
+    let what = FlatDiffsAlgorithms.merged(scaled);
+    /* console.log(util.inspect(what, {depth: null, maxArrayLength: null})); */
+    /* console.log(what.length); */
   });
 
   it('should render into svg', function () {

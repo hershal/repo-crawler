@@ -23,38 +23,33 @@ class ScalableNumber {
     return typeof(a) == 'number';
   }
 
-  scale(fnOrNumber) {
+  scaled(fnOrNumber) {
     if (this.isFunction(fnOrNumber)) {
-      this._value = fnOrNumber(this.value);
+      return new ScalableNumber(fnOrNumber(this.value));
     } else if (this.isNumber(fnOrNumber)) {
-      this._value = this.value * fnOrNumber;
+      return new ScalableNumber(this.value * fnOrNumber);
     } else {
       console.log(`Could not rescale number ${this.value} by ${fnOrNumber}.`);
+      return new ScalableNumber(this.value);
     }
-
-    return this;
   }
 
-  translate(num) {
-    this._value = this.value + num;
-    return this;
+  translated(num) {
+    return new ScalableNumber(this.value + num);
   }
 
-  round() {
-    this._value = Math.round(this.value);
-    return this;
+  rounded() {
+    return new ScalableNumber(Math.round(this.value));
   }
 
-  floor() {
-    this._value = Math.floor(this.value);
-    return this;
+  floored() {
+    return new ScalableNumber(Math.floor(this.value));
   }
 
   /* Snap to the lowest value within a the next highest and next lowest multiple
    * of the interval. */
-  snap(interval) {
-    this._value -= this._value % interval;
-    return this;
+  snapped(interval) {
+    return new ScalableNumber(this.value - this.value % interval);
   }
 }
 module.exports.ScalableNumber = ScalableNumber;
@@ -69,6 +64,8 @@ class FlatDiff {
   get root() { return this._root; }
   get sha() { return this._sha; }
   get file() { return this._file; }
+  get additions() { return this._add; }
+  get deletions() { return this._del; }
 
   constructor(diff) {
     this.mergeCriteria = 'language';
@@ -79,8 +76,8 @@ class FlatDiff {
       this._file = [diff.file];
 
       /* mutable members */
-      this.additions = new ScalableNumber(diff.additions);
-      this.deletions = new ScalableNumber(diff.deletions);
+      this._add = new ScalableNumber(diff.additions);
+      this._del = new ScalableNumber(diff.deletions);
       this.date = new ScalableNumber(diff.commit.date.valueOf());
     } else {
       console.log('constructing FlatDiff from nothing!');
@@ -113,8 +110,8 @@ class FlatDiff {
 
   merge(flatDiff) {
     if (this.canMerge(flatDiff)) {
-      this.additions.translate(flatDiff.additions.value);
-      this.deletions.translate(flatDiff.deletions.value);
+      this._add = this.additions.translated(flatDiff.additions.value);
+      this._del = this.deletions.translated(flatDiff.deletions.value);
       this._sha = this._sha.concat(flatDiff.sha);
 
       /* Make sure we don't have duplicates by extracting the first element of
