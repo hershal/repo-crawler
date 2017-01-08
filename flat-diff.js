@@ -14,7 +14,7 @@ const ScalableNumber = require('./scalable-number').ScalableNumber;
  * flattened, we can forget about the rest of the world. */
 class FlatDiff {
   get root() { return this._root; }
-  get sha() { return this._sha; }
+  get sha() { return Array.from(this._sha); }
   get file() { return this._file; }
   get additions() { return this._add; }
   get deletions() { return this._del; }
@@ -24,7 +24,8 @@ class FlatDiff {
 
     if (diff instanceof FileDiff.FileDiff) {
       this._root = diff.commit.repo.dir;
-      this._sha = [diff.commit.sha];
+      this._sha = new Set();
+      this._sha.add(diff.commit.sha);
       this._file = [diff.file];
 
       /* mutable members */
@@ -64,7 +65,7 @@ class FlatDiff {
     if (this.canMerge(flatDiff)) {
       this._add = this.additions.translated(flatDiff.additions.value);
       this._del = this.deletions.translated(flatDiff.deletions.value);
-      this._sha = this._sha.concat(flatDiff.sha);
+      flatDiff.sha.forEach((s) => this._sha.add(s));
 
       /* Make sure we don't have duplicates by extracting the first element of
        * each group of unique paths. FileRef guarantees that its derived data is
