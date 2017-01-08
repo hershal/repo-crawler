@@ -14,7 +14,7 @@ const FlatDiff = require('../flat-diff').FlatDiff;
 const Repo = require('../repo').Repo;
 const ScalableNumber = require('../flat-diff').ScalableNumber;
 const Scanner = require('../repo').Scanner;
-const FlatDiffsMerger = require('../flat-diff').FlatDiffsMerger;
+const FlatDiffsAlgorithms = require('../flat-diffs-algorithms');
 
 const SVGRender = require('../svg-renderer');
 
@@ -62,8 +62,7 @@ describe('ScalableNumber tests', function () {
 
   it('should scale a number in-place', function () {
     assert(number.value == value);
-    number.scale(0.5);
-    assert(number);
+    assert(number.scale(0.5).value == value * 0.5);
     assert(number.value == value * 0.5);
   });
 
@@ -171,8 +170,7 @@ describe('FlatDiff tests', function () {
 
 
 describe('Scanner Categorization Tests', function () {
-  let repo;
-  let flatDiffs;
+  let repo, flatDiffs, scaledFlatDiffs;
 
   before('should create a repo object', function(done) {
     this.timeout(4000);
@@ -180,9 +178,12 @@ describe('Scanner Categorization Tests', function () {
     repo = new Repo(dir);
     repo.scan().then(() => {
       assert(repo.additions > 0 && repo.deletions > 0);
+      /* equivalent to a flatMap */
       flatDiffs = repo.commits
         .map((c) => c.fileDiffs.map((d) => d.flatten()))
         .reduce((a, c) => a.concat(c), []);
+
+      scaledFlatDiffs = FlatDiffsAlgorithms.scaleDates(flatDiffs);
       done();
     });
   });
@@ -231,15 +232,14 @@ describe('Scanner Categorization Tests', function () {
   });
 
   it('should merge cleanly', function () {
-    const diffs = FlatDiffsMerger.merge(flatDiffs);
-    const what = _.groupBy(diffs, (d) => d.date.value);
-    /* console.log(what); */
+    let what = FlatDiffsAlgorithms.merge(scaledFlatDiffs);
+    console.log(util.inspect(what, {depth: null, maxArrayLength: null}));
     /* console.log(Object.keys(what).length); */
   });
 
   it('should render into svg', function () {
-    let diffs = FlatDiffsMerger.merge(flatDiffs);
-    let rendered = SVGRender.render(800, 600, diffs);
+    /* let diffs = FlatDiffsAlgorithms.merge(flatDiffs); */
+    /* let rendered = SVGRender.render(800, 600, diffs); */
     /* console.log(rendered); */
   });
 });
@@ -265,7 +265,8 @@ describe('Scanning Directory Full of Repos', function () {
 
 function unknownFileTypesFromCommits(commits) {
   return commits
-    .map((c) => c.fileDiffs.filter((d) => !d.file.classification || !d.file.classification.category))
+    .map((c) => c.fileDiffs.filter((d) => !d.file.classification
+                                   || !d.file.classification.category))
     .filter((c) => c.length > 0)
     .reduce((a, c) => a.concat(c), new Array())
     .reduce((a, d) => a.add(d.file.extension), new Set());

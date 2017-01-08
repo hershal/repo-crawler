@@ -124,30 +124,3 @@ class FlatDiff {
   }
 }
 module.exports.FlatDiff = FlatDiff;
-
-module.exports.FlatDiffsMerger = {
-  merge: function (flatDiffs) {
-
-    let minDate = flatDiffs.reduce((a, d) => a > d.date.value ? d.date.value : a, Number.MAX_SAFE_INTEGER);
-
-    let what = _(flatDiffs)
-    /* filter out the diffs which we could not categorize */
-        .filter((d) => d.file.reduce((a, f) => f.classification ? true : false), false)
-    /* group by date */
-        /* .groupBy((d) => d.date.value) */
-        .value();
-    /*   .forEach((d) => d.date.translate(-minDate)) */
-    /* /\* merge *\/ */
-    /*   .reduce((a, d) => { */
-    /*     let last = a[a.length-1]; */
-    /*     if (!last || !last.merge(d)) { */
-    /*       a.push(d); */
-    /*     } */
-    /*     return a; */
-    /*   }, new Array()); */
-
-    /* flatDiffs.sort((a, b) => a.date - b.date).reverse(); */
-    /* return flatDiffs; */
-    /* console.log(what); */
-  }
-};
