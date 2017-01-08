@@ -37,6 +37,7 @@ class ScalableNumber {
 
   translate(num) {
     this._value = this.value + num;
+    return this;
   }
 
   round() {
