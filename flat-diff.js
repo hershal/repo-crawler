@@ -75,7 +75,7 @@ class FlatDiff {
       /* mutable members */
       this.additions = new ScalableNumber(diff.additions);
       this.deletions = new ScalableNumber(diff.deletions);
-      this.date = new ScalableNumber(diff.commit.date);
+      this.date = new ScalableNumber(diff.commit.date.valueOf());
     } else {
       console.log('constructing FlatDiff from nothing!');
     }
@@ -121,32 +121,27 @@ module.exports.FlatDiff = FlatDiff;
 
 module.exports.FlatDiffsMerger = {
   merge: function (flatDiffs) {
-    flatDiffs = flatDiffs.slice(0);
 
+    let minDate = flatDiffs.reduce((a, d) => a > d.date.value ? d.date.value : a, Number.MAX_SAFE_INTEGER);
+
+    let what = _(flatDiffs)
     /* filter out the diffs which we could not categorize */
-    flatDiffs = flatDiffs.filter((d) => d.file.reduce((a, f) => f.classification ? true : false), false);
+        .filter((d) => d.file.reduce((a, f) => f.classification ? true : false), false)
+    /* group by date */
+        /* .groupBy((d) => d.date.value) */
+        .value();
+    /*   .forEach((d) => d.date.translate(-minDate)) */
+    /* /\* merge *\/ */
+    /*   .reduce((a, d) => { */
+    /*     let last = a[a.length-1]; */
+    /*     if (!last || !last.merge(d)) { */
+    /*       a.push(d); */
+    /*     } */
+    /*     return a; */
+    /*   }, new Array()); */
 
-    /* quantize to day */
-    flatDiffs.forEach((d) => d.date.scale(1.0/Constants.msPerDay).round());
-
-    /* sort */
-    /* oldest commit is the first now */
-    flatDiffs = flatDiffs.sort((a, b) => a.date.value - b.date.value );
-
-    /* rescale */
-    const dist = flatDiffs[0].date.value;
-    flatDiffs.forEach((d) => d.date.translate(-dist));
-
-    /* merge */
-    flatDiffs = flatDiffs.reduce((a, d) => {
-      let last = a[a.length-1];
-      if (!last || !last.merge(d)) {
-        a.push(d);
-      }
-      return a;
-    }, new Array());
-
-    flatDiffs.sort((a, b) => a.date - b.date).reverse();
-    return flatDiffs;
+    /* flatDiffs.sort((a, b) => a.date - b.date).reverse(); */
+    /* return flatDiffs; */
+    /* console.log(what); */
   }
 };

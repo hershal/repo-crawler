@@ -216,10 +216,17 @@ describe('Scanner Categorization Tests', function () {
     });
   });
 
+  it('should merge cleanly', function () {
+    const diffs = FlatDiffsMerger.merge(flatDiffs);
+    const what = _.groupBy(diffs, (d) => d.date.value);
+    /* console.log(what); */
+    /* console.log(Object.keys(what).length); */
+  });
+
   it('should render into svg', function () {
     let diffs = FlatDiffsMerger.merge(flatDiffs);
     let rendered = SVGRender.render(800, 600, diffs);
-    console.log(rendered);
+    /* console.log(rendered); */
   });
 });
 
