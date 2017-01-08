@@ -5,55 +5,7 @@ const util = require('util');
 
 const Constants = require('./constants');
 const FileDiff = require('./repo');
-
-/* Objects model behaviors, not data */
-class ScalableNumber {
-  get value() { return this._value; }
-
-  constructor(value) {
-    this._value = value;
-  }
-
-  isFunction(fn) {
-    var getType = {};
-    return fn && getType.toString.call(fn) === '[object Function]';
-  }
-
-  isNumber(a) {
-    return typeof(a) == 'number';
-  }
-
-  scaled(fnOrNumber) {
-    if (this.isFunction(fnOrNumber)) {
-      return new ScalableNumber(fnOrNumber(this.value));
-    } else if (this.isNumber(fnOrNumber)) {
-      return new ScalableNumber(this.value * fnOrNumber);
-    } else {
-      console.log(`Could not rescale number ${this.value} by ${fnOrNumber}.`);
-      return new ScalableNumber(this.value);
-    }
-  }
-
-  translated(num) {
-    return new ScalableNumber(this.value + num);
-  }
-
-  rounded() {
-    return new ScalableNumber(Math.round(this.value));
-  }
-
-  floored() {
-    return new ScalableNumber(Math.floor(this.value));
-  }
-
-  /* Snap to the lowest value within a the next highest and next lowest multiple
-   * of the interval. */
-  snapped(interval) {
-    return new ScalableNumber(this.value - this.value % interval);
-  }
-}
-module.exports.ScalableNumber = ScalableNumber;
-
+const ScalableNumber = require('./scalable-number').ScalableNumber;
 
 /* This class intentionally breaks the Law of Demeter. This is necesary to debug
  * the mathematical calculations I'm doing on the data later on. The alternative
