@@ -116,7 +116,15 @@ class FlatDiff {
       this.additions.translate(flatDiff.additions.value);
       this.deletions.translate(flatDiff.deletions.value);
       this._sha = this._sha.concat(flatDiff.sha);
-      this._file = this._file.concat(flatDiff.file);
+
+      /* Make sure we don't have duplicates by extracting the first element of
+       * each group of unique paths. FileRef guarantees that its derived data is
+       * the same as another FileRef as long as the path it represents is the
+       * same. */
+      this._file = _(this.file.concat(flatDiff.file))
+        .groupBy((f) => f.path)
+        .reduce((a, f) => a.concat(f[0]), new Array());
+
       return true;
     } else {
       return false;
