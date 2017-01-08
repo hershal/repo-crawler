@@ -15,7 +15,7 @@ module.exports = {
           }
           a.push(d);
           return a;
-        }, new Array());
+        }, []);
       })
       .value();
   },

@@ -268,6 +268,6 @@ function unknownFileTypesFromCommits(commits) {
     .map((c) => c.fileDiffs.filter((d) => !d.file.classification
                                    || !d.file.classification.category))
     .filter((c) => c.length > 0)
-    .reduce((a, c) => a.concat(c), new Array())
+    .reduce((a, c) => a.concat(c), [])
     .reduce((a, d) => a.add(d.file.extension), new Set());
 }

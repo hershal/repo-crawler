@@ -11,14 +11,14 @@ module.exports.render = render;
 
 function generateRows(repos) {
   /* oh god */
-  let rows = new Array();
+  let rows = [];
   for (let repo of repos) {
     for (let commit of repo.commits) {
       let date = commit.date;
       let sha = commit.sha;
       for (let diff of commit.fileDiffs) {
         if (!diff.file.classification) { continue; }
-        let row = new Array();
+        let row = [];
         row.push(date.valueOf());
         row.push(date.toString());
         row.push(sha);

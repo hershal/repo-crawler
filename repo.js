@@ -54,7 +54,7 @@ class Commit {
   constructor(sha, date, commitstat, repo) {
     this._sha = sha;
     this._date = new Date(date);
-    this._fileDiffs = new Array();
+    this._fileDiffs = [];
     this._add = 0;
     this._del = 0;
     this._repo = repo;
@@ -91,7 +91,7 @@ class Repo {
   get deletions() { return this._del; }
 
   constructor(dir) {
-    this._commits = new Array();
+    this._commits = [];
     this._add = 0;
     this._del = 0;
     this._dir = new FileRef(dir);
@@ -139,7 +139,7 @@ class Scanner {
   get repos() { return this._repos; }
 
   constructor() {
-    this._repos = new Array();
+    this._repos = [];
   }
 
   scan(dir) {

@@ -123,7 +123,7 @@ class FlatDiff {
        * same. */
       this._file = _(this.file.concat(flatDiff.file))
         .groupBy((f) => f.path)
-        .reduce((a, f) => a.concat(f[0]), new Array());
+        .reduce((a, f) => a.concat(f[0]), []);
 
       return true;
     } else {
