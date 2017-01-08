@@ -44,6 +44,11 @@ class ScalableNumber {
     return this;
   }
 
+  floor() {
+    this._value = Math.floor(this.value);
+    return this;
+  }
+
   /* Snap to the lowest value within a the next highest and next lowest multiple
    * of the interval. */
   snap(interval) {

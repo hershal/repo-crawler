@@ -82,6 +82,20 @@ describe('ScalableNumber tests', function () {
     number.snap(interval);
     assert(number.value == (interval * multiplier));
   });
+
+  it('should round a number in-place', function () {
+    const interval = 1/6;
+    let rounded = number.scale(interval).round();
+    assert(rounded.value == number.value);
+    assert(rounded.value == Math.round(interval * value));
+  });
+
+  it('should floor a number in-place', function () {
+    const interval = 1/6;
+    let floored = number.scale(interval).floor();
+    assert(floored.value == number.value);
+    assert(floored.value == Math.floor(interval * value));
+  });
 });
 
 
