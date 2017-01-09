@@ -13,6 +13,8 @@ const FlatDiffsAlgorithms = require('../flat-diffs-algorithms');
 const CSVRender = require('../csv-renderer');
 const SVGRender = require('../svg-renderer');
 
+const Utils = require('../utils');
+
 describe('Scanner Categorization Tests', function () {
   let repo, flatDiffs;
 
@@ -89,10 +91,28 @@ describe('Scanner Categorization Tests', function () {
     let scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
     let merged = FlatDiffsAlgorithms.merged(scaled);
 
-    /* console.log(util.inspect(Object.keys(merged), {maxArrayLength: null})); */
+    /* console.log(util.inspect(merged, {depth: null, maxArrayLength: null})); */
 
-    let rendered = SVGRender.render(800, 600, merged);
-    console.log(rendered);
+    let what = _(merged)
+        .flatten()
+        .groupBy((el) => el.mergedCriteria)
+        .mapValues((values, key) =>
+                   _.map(values, (el) => {
+                     /* create new objects */
+                     return { x: el.date.value,
+                              y: (el.additions.value + el.deletions.value),
+                              title: ``,
+                              description: `${el.sha}` };
+                   }))
+        .value();
+
+    let rendered = _.mapValues(what, (v, k) => SVGRender.render(800, 600, v));
+
+    console.log(Object.values(rendered)[0]);
+
+    _.forIn(rendered, (v, k) => {
+      fs.writeFileSync(`lang-${Utils.slugify(k)}.svg`, v);
+    });
   });
 });
 
@@ -113,5 +133,4 @@ describe('Scanning Directory Full of Repos', function () {
     let rendered = CSVRender.render(scanner.repos);
     fs.writeFileSync('rendered-tmp.csv', rendered);
   });
-
 });
