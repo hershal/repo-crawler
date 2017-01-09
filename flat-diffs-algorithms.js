@@ -24,6 +24,8 @@ module.exports = {
            * array and return */
           a.push(d); return a;
         }, []);
+
+        /* keep the time labels in the mapped array */
         let obj = new Object(null);
         obj[time] = d;
         return obj;
