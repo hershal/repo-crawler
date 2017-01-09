@@ -12,7 +12,7 @@ module.exports = {
     /* map through the grouped values */
       .map((diffs, time) => {
         /* merge the mergable FlatDiffs */
-        let d = diffs.reduce((a, d) => {
+        return diffs.reduce((a, d) => {
           /* find the index of a mergable diff to merge this diff into */
           for (let index in a) {
             let merged = a[index].merged(d);
@@ -24,11 +24,6 @@ module.exports = {
            * array and return */
           a.push(d); return a;
         }, []);
-
-        /* keep the time labels in the mapped array */
-        let obj = new Object(null);
-        obj[time] = d;
-        return obj;
       })
       .value();
   },
