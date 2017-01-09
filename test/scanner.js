@@ -92,14 +92,14 @@ describe('Scanner Categorization Tests', function () {
     const merged = FlatDiffsAlgorithms.merged(scaled);
     const flattened = _.flatten(merged);
 
-    const maxY = flattened.reduce((a, f) => Math.max(a, f.additions
-                                                    .translated(f.deletions)
-                                                    .value),
-                                 0);
-    const minY = flattened.reduce((a, f) => Math.min(a, f.additions
-                                                    .translated(f.deletions)
-                                                    .value),
-                                 Number.MAX_SAFE_INTEGER);
+    const maxY = flattened.reduce((a, f) =>
+                                  Math.max(a, f.additions
+                                           .translated(f.deletions)
+                                           .value), 0);
+    const minY = flattened.reduce((a, f) =>
+                                  Math.min(a, f.additions
+                                           .translated(f.deletions)
+                                           .value), Number.MAX_SAFE_INTEGER);
 
     const maxX = flattened.reduce((a, f) => Math.max(a, f.date.value), 0);
     const minX = flattened.reduce((a, f) => Math.min(a, f.date.value), Number.MAX_SAFE_INTEGER);
@@ -124,12 +124,12 @@ describe('Scanner Categorization Tests', function () {
 
     let rendered = _.mapValues(what, (v, k) => SVGRender.render(800, 600, v));
 
-    let one = 'SCSS';
+    let one = 'JavaScript';
     console.log(one + '\n' + rendered[one]);
 
-    /* _.forIn(rendered, (v, k) => { */
-    /*   fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v); */
-    /* }); */
+    _.forIn(rendered, (v, k) => {
+      fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v);
+    });
   });
 });
 
