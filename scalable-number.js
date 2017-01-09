@@ -29,6 +29,7 @@ class ScalableNumber {
   }
 
   translated(num) {
+    num = num.value != undefined ? num.value : num;
     return new ScalableNumber(this.value + num);
   }
 
