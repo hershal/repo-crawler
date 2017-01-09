@@ -7,7 +7,10 @@ const FileRef = require('../file-ref').FileRef;
 
 describe('FlatDiff tests', function () {
   function createFakeObject(filepath, date, sha) {
-    sha = sha ? sha : 'abc';
+    sha = sha ? sha : ['abc'];
+    if (!Array.isArray(sha)) {
+      sha = [sha];
+    }
     const singleLineDiffStat = '1        1      ' + filepath;
     const ds = new FileDiff(singleLineDiffStat);
     ds._commit = { sha: sha,
@@ -31,36 +34,55 @@ describe('FlatDiff tests', function () {
     });
 
     it('should merge multiple elements', function () {
-      assert(flat0.merge(flat1));
-      assert(flat0.additions.value == 2 && flat0.deletions.value == 2);
-      assert(flat0.file.length == 2 && flat0.sha.length == 2);
+      const merged = flat0.merged(flat1);
+      assert(merged != flat0);
+      assert(merged.additions.value == 2 && merged.deletions.value == 2);
+      assert(merged.file.length == 2 && merged.sha.length == 2);
+    });
+
+    it('should not touch the elements which merged', function () {
+      /* didn't touch flat0 and flat1 */
+      const merged = flat0.merged(flat1);
+
+      assert(flat0.additions.value == 1 && flat0.deletions.value == 1);
+      assert(flat0.file.length == 1 && flat0.sha.length == 1);
+      assert(flat1.additions.value == 1 && flat1.deletions.value == 1);
+      assert(flat1.file.length == 1 && flat1.sha.length == 1);
     });
 
     it('should merge multiple elements with same time, sha, and type', function () {
       flat1._sha = new Set(['abc']);
-      assert(flat0.merge(flat1));
-      assert(flat0.additions.value == 2 && flat0.deletions.value == 2);
-      assert(flat0.file.length == 2 && flat0.sha.length == 1);
+      const merged = flat0.merged(flat1);
+      assert(merged);
+      assert(merged.additions.value == 2 && merged.deletions.value == 2);
+      assert(merged.file.length == 2 && merged.sha.length == 1);
     });
 
     it('should merge a third element', function () {
-      assert(flat0.merge(flat1));
+      const merged0 = flat0.merged(flat1);
+      assert(merged0);
       let flat2 = createFakeObject('array.hpp', 10, 'hgi');
-      assert(flat0.merge(flat2));
-      assert(flat0.additions.value == 3 && flat0.deletions.value == 3);
-      assert(flat0.file.length == 3 && flat0.sha.length == 3);
+      console.log(merged0);
+      let merged1 = merged0.merged(flat2);
+      assert(merged1);
+      assert(merged1.additions.value == 3 && merged1.deletions.value == 3);
+      assert(merged1.file.length == 3 && merged1.sha.length == 3);
     });
 
     it('should not merge an element with differing date', function () {
-      assert(flat0.merge(flat1));
+      const merged0 = flat0.merged(flat1);
+      assert(merged0);
       let flat2 = createFakeObject('array.hpp', 11);
-      assert(!flat0.merge(flat2));
+      const merged1 = flat0.merged(flat2);
+      assert(!merged1);
     });
 
     it('should not merge an element with differing classification', function () {
-      assert(flat0.merge(flat1));
+      let merged0 = flat0.merged(flat1);
+      assert(merged0);
       let flat2 = createFakeObject('array.js', 10);
-      assert(!flat0.merge(flat2));
+      let merged1 = flat0.merged(flat2);
+      assert(!merged1);
     });
   });
 

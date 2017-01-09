@@ -75,15 +75,24 @@ describe('Scanner Categorization Tests', function () {
 
   it('should merge cleanly', function () {
     let scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
-    let what = FlatDiffsAlgorithms.merged(scaled);
-    /* console.log(util.inspect(what, {depth: null, maxArrayLength: null})); */
-    /* console.log(what.length); */
+    let merged = FlatDiffsAlgorithms.merged(scaled);
+    /* assert(!_.isEqual(merged, flatDiffs)); */
+    assert(!_.isEqual(merged, flatDiffs));
+    assert(Object.keys(flatDiffs).length > 1);
+    /* console.log(merged); */
+    /* console.log(util.inspect(Object.keys(merged), {maxArrayLength: null})); */
+    /* console.log(util.inspect(merged, {depth: null, maxArrayLength: null})); */
+    /* console.log(merged.length); */
   });
 
   it('should render into svg', function () {
-    /* let diffs = FlatDiffsAlgorithms.merge(flatDiffs); */
-    /* let rendered = SVGRender.render(800, 600, diffs); */
-    /* console.log(rendered); */
+    let scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
+    let merged = FlatDiffsAlgorithms.merged(scaled);
+
+    /* console.log(util.inspect(Object.keys(merged), {maxArrayLength: null})); */
+
+    let rendered = SVGRender.render(800, 600, merged);
+    console.log(rendered);
   });
 });
 

@@ -5,6 +5,7 @@ const util = require('util');
 
 const Constants = require('./constants');
 const FileDiff = require('./repo');
+const FileRef = require('./file-ref');
 const ScalableNumber = require('./scalable-number').ScalableNumber;
 
 /* This class intentionally breaks the Law of Demeter. This is necesary to debug
@@ -16,29 +17,44 @@ class FlatDiff {
   get root() { return this._root; }
   get sha() { return Array.from(this._sha); }
   get file() { return this._file; }
+  get date() { return this._date; }
   get additions() { return this._add; }
   get deletions() { return this._del; }
 
-  constructor(diff) {
+  constructor(diffOrRoot, sha, file, date, add, del) {
     this.mergeCriteria = 'language';
 
-    if (diff instanceof FileDiff.FileDiff) {
+    if (diffOrRoot instanceof FileDiff.FileDiff) {
+      const diff = diffOrRoot;
       this._root = diff.commit.repo.dir;
-      this._sha = new Set();
-      this._sha.add(diff.commit.sha);
-      this._file = [diff.file];
+      this._sha = new Set(_.flatten([diff.commit.sha]));
+      this._file = _.flatten([diff.file]);
 
       /* mutable members */
       this._add = new ScalableNumber(diff.additions);
       this._del = new ScalableNumber(diff.deletions);
-      this.date = new ScalableNumber(diff.commit.date.valueOf());
+      this._date = new ScalableNumber(diff.commit.date.valueOf());
+    } else if (diffOrRoot instanceof FileRef.FileRef) {
+      if (Array.isArray(sha)) {
+        this._sha = new Set(sha);
+      } else if (typeof sha == 'string') {
+        this._sha = new Set([sha]);
+      } else {
+        /* assume it's a Set; I couldn't google for this effectively */
+        this._sha = sha;
+      }
+      this._root = diffOrRoot;
+      this._file = file;
+      this._add = add;
+      this._del = del;
+      this._date = date;
     } else {
       console.log('constructing FlatDiff from nothing!');
     }
   }
 
   canMerge(flatDiff) {
-    if (this.date.value != flatDiff.date.value) { return false; }
+    if (this._date.value != flatDiff.date.value) { return false; }
 
     const getClassifications = (files) => {
       return files.map((f) => f.classification[this.mergeCriteria])
@@ -61,23 +77,31 @@ class FlatDiff {
     return _.isEqual(ourClassifications, theirClassifications);
   }
 
-  merge(flatDiff) {
+  scaledDate(fn) {
+    return new FlatDiff(this.root, this.sha, this.file,
+                        fn(this.date),
+                        this.additions, this.deletions);
+  }
+
+  merged(flatDiff) {
     if (this.canMerge(flatDiff)) {
-      this._add = this.additions.translated(flatDiff.additions.value);
-      this._del = this.deletions.translated(flatDiff.deletions.value);
-      flatDiff.sha.forEach((s) => this._sha.add(s));
+      let add = this.additions.translated(flatDiff.additions.value);
+      let del = this.deletions.translated(flatDiff.deletions.value);
+      let sha = new Set(this.sha.concat(flatDiff.sha));
 
       /* Make sure we don't have duplicates by extracting the first element of
        * each group of unique paths. FileRef guarantees that its derived data is
        * the same as another FileRef as long as the path it represents is the
        * same. */
-      this._file = _(this.file.concat(flatDiff.file))
-        .groupBy((f) => f.path)
-        .reduce((a, f) => a.concat(f[0]), []);
+      let file = _(this.file.concat(flatDiff.file))
+          .groupBy((f) => f.path)
+          .reduce((a, f) => a.concat(f[0]), []);
 
-      return true;
+      let date = this._date;
+
+      return new FlatDiff(this.root, sha, file, date, add, del);
     } else {
-      return false;
+      return undefined;
     }
   }
 }
