@@ -46,5 +46,19 @@ class ScalableNumber {
   snapped(interval) {
     return new ScalableNumber(this.value - this.value % interval);
   }
+
+  linearInterpolated(xMin, xMax, yMin, yMax) {
+    const x = this.value;
+    if (x > xMax) { return yMax; }
+    else if (x < xMin) { return yMin; }
+    const interpolated = yMin + ((yMax - yMin)*(x - xMin))/((xMax - xMin));
+    return new ScalableNumber(interpolated);
+  }
+
+  inverted(origin) {
+    origin = origin ? origin : 0;
+    origin = origin.value != undefined ? origin.value : origin;
+    return new ScalableNumber(origin - this.value);
+  }
 }
 module.exports.ScalableNumber = ScalableNumber;
