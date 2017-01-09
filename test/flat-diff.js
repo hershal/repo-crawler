@@ -62,7 +62,6 @@ describe('FlatDiff tests', function () {
       const merged0 = flat0.merged(flat1);
       assert(merged0);
       let flat2 = createFakeObject('array.hpp', 10, 'hgi');
-      console.log(merged0);
       let merged1 = merged0.merged(flat2);
       assert(merged1);
       assert(merged1.additions.value == 3 && merged1.deletions.value == 3);
