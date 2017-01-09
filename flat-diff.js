@@ -22,8 +22,6 @@ class FlatDiff {
   get deletions() { return this._del; }
 
   constructor(diffOrRoot, sha, file, date, add, del) {
-    this.mergeCriteria = 'language';
-
     if (diffOrRoot instanceof FileDiff.FileDiff) {
       const diff = diffOrRoot;
       this._root = diff.commit.repo.dir;
@@ -51,6 +49,9 @@ class FlatDiff {
     } else {
       console.log('constructing FlatDiff from nothing!');
     }
+
+    this.mergeCriteria = 'language';
+    this.mergedCriteria = this.file[0].classification[this.mergeCriteria];
   }
 
   canMerge(flatDiff) {
