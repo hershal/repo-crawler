@@ -13,12 +13,16 @@ module.exports = {
       .map((diffs, time) => {
         /* merge the mergable FlatDiffs */
         let d = diffs.reduce((a, d) => {
-          for (let ad of a) {
-            let merged = ad.merged(d);
-            if (merged) { a.push(merged); return a; }
+          /* find the index of a mergable diff to merge this diff into */
+          for (let index in a) {
+            let merged = a[index].merged(d);
+            /* replace the mergeable diff element of the reduction array with
+             * the merged diff and return */
+            if (merged) { a[index] = merged; return a; }
           }
-          a.push(d);
-          return a;
+          /* if we couldn't merge, then push the new element on the reduction
+           * array and return */
+          a.push(d); return a;
         }, []);
         let obj = new Object(null);
         obj[time] = d;
