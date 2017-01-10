@@ -78,7 +78,7 @@ class FlatDiff {
     return _.isEqual(ourClassifications, theirClassifications);
   }
 
-  scaledDate(fn) {
+  transformDate(fn) {
     return new FlatDiff(this.root, this.sha, this.file,
                         fn(this.date),
                         this.additions, this.deletions);

@@ -31,11 +31,41 @@ module.exports = {
     const minDate = flatDiffs.reduce(
       (a, d) => a > d.date.value ? d.date.value : a, Number.MAX_SAFE_INTEGER);
     return flatDiffs.map(
-      (d) => d.scaledDate(
+      (d) => d.transformDate(
         (d) => d
           .translated(-minDate)
           .scaled(1.0/Constants.msPerDay)
           .floored())
     );
+  },
+  /* spits out key-value pairs in the form {'language': [{x, y, title, description}]} */
+  normalized: function (flatDiffs) {
+    const maxY = flatDiffs.reduce((a, f) =>
+                                  Math.max(a, f.additions
+                                           .translated(f.deletions)
+                                           .value), 0);
+    const minY = flatDiffs.reduce((a, f) =>
+                                  Math.min(a, f.additions
+                                           .translated(f.deletions)
+                                           .value), Number.MAX_SAFE_INTEGER);
+
+    const maxX = flatDiffs.reduce((a, f) => Math.max(a, f.date.value), 0);
+    const minX = flatDiffs.reduce((a, f) => Math.min(a, f.date.value), Number.MAX_SAFE_INTEGER);
+
+    let what = _(flatDiffs)
+        .groupBy((el) => el.mergedCriteria)
+        .mapValues((values, key) =>
+                   _.map(values, (el) => {
+                     /* create new objects */
+                     return { x: el.date.linearInterpolated(minX, maxX, 0, 1.0),
+                              y: (el.additions
+                                  .translated(el.deletions)
+                                  .linearInterpolated(minY, maxY, 0, 1.0)
+                                  .inverted(1)),
+                              title: ``,
+                              description: `${el.sha} ${el.additions.value + el.deletions.value}` };
+                   }))
+        .value();
+    return what;
   }
 };

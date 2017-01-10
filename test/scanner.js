@@ -53,7 +53,7 @@ describe('Scanner Categorization Tests', function () {
     const sorted = _.sortBy(repo.commits, 'date');
     let date = 0;
     sorted.forEach(function (c) {
-      assert(c.date > date);
+      assert(c.date >= date);
       date = c.date;
     });
   });
@@ -91,42 +91,12 @@ describe('Scanner Categorization Tests', function () {
     const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
     const merged = FlatDiffsAlgorithms.merged(scaled);
     const flattened = _.flatten(merged);
+    const normalized = FlatDiffsAlgorithms.normalized(flattened);
+    let rendered = _.mapValues(normalized, (v, k) => SVGRender.render(800, 600, v));
 
-    const maxY = flattened.reduce((a, f) =>
-                                  Math.max(a, f.additions
-                                           .translated(f.deletions)
-                                           .value), 0);
-    const minY = flattened.reduce((a, f) =>
-                                  Math.min(a, f.additions
-                                           .translated(f.deletions)
-                                           .value), Number.MAX_SAFE_INTEGER);
-
-    const maxX = flattened.reduce((a, f) => Math.max(a, f.date.value), 0);
-    const minX = flattened.reduce((a, f) => Math.min(a, f.date.value), Number.MAX_SAFE_INTEGER);
-
-    console.log(flattened);
-
-    let what = _(flattened)
-        .groupBy((el) => el.mergedCriteria)
-        .mapValues((values, key) =>
-                   _.map(values, (el) => {
-                     /* create new objects */
-                     return { x: el.date.linearInterpolated(minX, maxX, 0, 800).value,
-                              y: (el.additions
-                                  .translated(el.deletions)
-                                  .linearInterpolated(minY, maxY, 0, 600)
-                                  .inverted(600)
-                                  .value),
-                              title: ``,
-                              description: `${el.sha}` };
-                   }))
-        .value();
-
-    let rendered = _.mapValues(what, (v, k) => SVGRender.render(800, 600, v));
+    /* console.log(util.inspect(_.groupBy(flattened, (el) => el.mergedCriteria)['Ruby'], {depth: null})); */
 
     let one = 'JavaScript';
-    console.log(one + '\n' + rendered[one]);
-
     _.forIn(rendered, (v, k) => {
       fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v);
     });
@@ -134,12 +104,12 @@ describe('Scanner Categorization Tests', function () {
 });
 
 
-describe('Scanning Directory Full of Repos', function () {
+xdescribe('Scanning Directory Full of Repos', function () {
   let scanner;
   before(function (done) {
     this.timeout(36000);
     scanner = new Scanner();
-    scanner.scan(process.env.HOME + '/tmp/repos/').then(() => done());
+    scanner.scan(process.env.HOME + '/repos/').then(() => done());
   });
 
   it('should scan a whole dir of repos', function () {
@@ -149,5 +119,22 @@ describe('Scanning Directory Full of Repos', function () {
   it('should render repos', function () {
     let rendered = CSVRender.render(scanner.repos);
     fs.writeFileSync('rendered-tmp.csv', rendered);
+  });
+
+  it('should render svg', function () {
+    const flatDiffs = _(scanner.repos)
+          .map((r) => r.commits)
+          .flatten()
+          .map((c) => c.fileDiffs.map((d) => d.flatten()))
+          .reduce((a, c) => a.concat(c), []);
+    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
+    const merged = FlatDiffsAlgorithms.merged(scaled);
+    const flattened = _.flatten(merged);
+    const normalized = FlatDiffsAlgorithms.normalized(flatDiffs);
+
+    let rendered = _.mapValues(normalized, (v, k) => SVGRender.render(800, 600, v));
+
+    let one = 'JavaScript';
+    fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(one)}.svg`, rendered[one]);
   });
 });
