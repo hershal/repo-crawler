@@ -109,7 +109,7 @@ class Repo {
       queue.addOperation(new Operation((done) => {
         const sha = line;
         shell
-          .exec(`git -C ${dir} show -w --numstat --diff-filter=ADMR ${sha} --date=iso-strict --format='%ad'`,
+          .exec(`git -C ${dir} show -w --numstat --diff-filter=ADMR ${sha} --date=short --format='%ad'`,
                 { silent: true },
                 (code, stdout, stderr) => {
                   /* This complexity arises because git cannot format the
