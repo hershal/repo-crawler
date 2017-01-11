@@ -97,14 +97,14 @@ describe('Scanner Categorization Tests', function () {
     /* console.log(util.inspect(_.groupBy(flattened, (el) => el.mergedCriteria)['Ruby'], {depth: null})); */
 
     let one = 'JavaScript';
-    _.forIn(rendered, (v, k) => {
-      fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v);
-    });
+    /* _.forIn(rendered, (v, k) => { */
+    /*   fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v); */
+    /* }); */
   });
 });
 
 
-xdescribe('Scanning Directory Full of Repos', function () {
+describe('Scanning Directory Full of Repos', function () {
   let scanner;
   before(function (done) {
     this.timeout(36000);
@@ -122,19 +122,41 @@ xdescribe('Scanning Directory Full of Repos', function () {
   });
 
   it('should render svg', function () {
-    const flatDiffs = _(scanner.repos)
+    this.timeout(10000);
+    const fileDiffs =  _(scanner.repos)
           .map((r) => r.commits)
           .flatten()
-          .map((c) => c.fileDiffs.map((d) => d.flatten()))
-          .reduce((a, c) => a.concat(c), []);
+          .map((c) => c.fileDiffs)
+          .flatten()
+          .value();
+
+    const unknowns = _(fileDiffs)
+          .map((d) => d.file)
+          .filter((f) => !f.classification)
+          .map((f) => f.extension)
+          .uniq()
+          .value();
+
+    console.log(util.inspect(unknowns, {maxArrayLength: null}));
+
+    const flatDiffs = _(fileDiffs)
+          .filter((d) => d.file.classification != undefined)
+          .map((d) => d.flatten())
+          .value();
+
     const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
     const merged = FlatDiffsAlgorithms.merged(scaled);
     const flattened = _.flatten(merged);
     const normalized = FlatDiffsAlgorithms.normalized(flatDiffs);
 
+    /* console.log(normalized); */
+
     let rendered = _.mapValues(normalized, (v, k) => SVGRender.render(800, 600, v));
 
     let one = 'JavaScript';
-    fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(one)}.svg`, rendered[one]);
+    _.forIn(rendered, (v, k) => {
+      fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v);
+    });
+    /* fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(one)}.svg`, rendered[one]); */
   });
 });
