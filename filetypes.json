@@ -8,6 +8,10 @@
   "Makefile": {"language": "Make", "category": "systems"},
   "cmake": {"language": "CMake", "category": "systems"},
 
+  "sh": {"language": "Shell Script", "category": "systems"},
+
+  "v": {"language": "Verilog", "category": "engineering"},
+
   "py": {"language": "Python", "category": "systems"},
 
   "el": {"language": "Emacs-Lisp", "category": "emacs"},
