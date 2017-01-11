@@ -58,8 +58,24 @@ describe('Scanner Categorization Tests', function () {
     });
   });
 
-  it('put repo commits in buckets', function () {
-    const rendered = CSVRender.render([repo]);
+  it('render repo commits to CSV', function () {
+    const fileDiffs =  _([repo])
+          .map((r) => r.commits)
+          .flatten()
+          .map((c) => c.fileDiffs)
+          .flatten()
+          .value();
+
+    const flatDiffs = _(fileDiffs)
+          .filter((d) => d.file.classification != undefined)
+          .map((d) => d.flatten())
+          .value();
+
+    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
+    const merged = FlatDiffsAlgorithms.merged(scaled);
+    const flattened = _.flatten(merged);
+
+    const rendered = CSVRender.render(flattened);
     fs.writeFileSync('rendered.csv', rendered);
   });
 
@@ -107,7 +123,7 @@ describe('Scanner Categorization Tests', function () {
 describe('Scanning Directory Full of Repos', function () {
   let scanner;
   before(function (done) {
-    this.timeout(36000);
+    this.timeout(64000);
     scanner = new Scanner();
     scanner.scan(process.env.HOME + '/repos/').then(() => done());
   });
@@ -116,12 +132,32 @@ describe('Scanning Directory Full of Repos', function () {
     assert(scanner.repos.length > 0);
   });
 
-  it('should render repos', function () {
-    let rendered = CSVRender.render(scanner.repos);
-    fs.writeFileSync('rendered-tmp.csv', rendered);
+  it('should render to CSV', function () {
+    this.timeout(10000);
+
+    const fileDiffs =  _(scanner.repos)
+          .map((r) => r.commits)
+          .flatten()
+          .map((c) => c.fileDiffs)
+          .flatten()
+          .value();
+
+    const flatDiffs = _(fileDiffs)
+          .filter((d) => d.file.classification != undefined)
+          .map((d) => d.flatten())
+          .value();
+
+    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
+    const merged = FlatDiffsAlgorithms.merged(scaled);
+    const flattened = _.flatten(merged);
+
+    /* console.log(util.inspect(flattened)); */
+
+    let rendered = CSVRender.render(flattened);
+    fs.writeFileSync('rendered-full.csv', rendered);
   });
 
-  it('should render svg', function () {
+  it('should render SVG', function () {
     this.timeout(10000);
     const fileDiffs =  _(scanner.repos)
           .map((r) => r.commits)
@@ -137,7 +173,7 @@ describe('Scanning Directory Full of Repos', function () {
           .uniq()
           .value();
 
-    console.log(util.inspect(unknowns, {maxArrayLength: null}));
+    /* console.log(util.inspect(unknowns, {maxArrayLength: null})); */
 
     const flatDiffs = _(fileDiffs)
           .filter((d) => d.file.classification != undefined)
