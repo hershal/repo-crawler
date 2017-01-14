@@ -17,7 +17,7 @@ describe('FlatDiffs Renderers', function () {
   let flatDiffs;
 
   beforeEach(function () {
-    flatDiffs = JSON.parse(fs.readFileSync('stats.json').toString())
+    flatDiffs = JSON.parse(fs.readFileSync(__dirname + '/stats.json').toString())
       .map((j) => FlatDiff.fromJSON(j));
   });
 

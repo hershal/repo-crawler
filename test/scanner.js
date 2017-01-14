@@ -80,7 +80,7 @@ describe('Scanner Categorization Tests', function () {
 });
 
 
-const statsFile = 'stats.json';
+const statsFile = __dirname + '/stats.json';
 if (!fs.existsSync(statsFile)) {
   describe('Scanning Directory Full of Repos', function () {
     let scanner;

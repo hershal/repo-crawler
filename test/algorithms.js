@@ -13,7 +13,7 @@ describe('Algorithms', function () {
   let flatDiffs, beforeStats;
 
   beforeEach(function () {
-    flatDiffs = JSON.parse(fs.readFileSync('stats.json').toString())
+    flatDiffs = JSON.parse(fs.readFileSync(__dirname + '/stats.json').toString())
       .map((j) => FlatDiff.fromJSON(j));
     beforeStats = calculateStats();
   });
