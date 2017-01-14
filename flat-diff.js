@@ -66,7 +66,7 @@ class FlatDiff {
     return new FlatDiff(FileRef.FileRef.fromJSON(json._root),
                         json._sha,
                         json._file.map((f) => FileRef.FileRef.fromJSON(f)),
-                        json._date, json._add._value, json._del._value);
+                        json._date._value, json._add._value, json._del._value);
   }
 
   canMerge(flatDiff) {
