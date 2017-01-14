@@ -67,5 +67,17 @@ module.exports = {
                    }))
         .value();
     return what;
+  },
+  /* removes diffs whose additions and deletions are three standard deviations
+   * away from the mean */
+  trimmed: function (flatDiffs) {
+    const values = flatDiffs.map((c) => c.additions.value + c.deletions.value);
+    const mean = values.reduce((a, c) => a + c, 0) / values.length;
+    const vari = values.reduce((a, c) => a + Math.pow(c - mean, 2), 0) / values.length;
+    const stdd = Math.sqrt(vari);
+    return flatDiffs.filter((f) => {
+      let changes = f.additions.value + f.deletions.value;
+      return Math.abs(changes - mean) < stdd * 3;
+    });
   }
 };
