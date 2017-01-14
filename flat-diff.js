@@ -15,7 +15,7 @@ const ScalableNumber = require('./scalable-number').ScalableNumber;
  * flattened, we can forget about the rest of the world. */
 class FlatDiff {
   get root() { return this._root; }
-  get sha() { return Array.from(this._sha); }
+  get sha() { return this._sha; }
   get file() { return this._file; }
   get date() { return this._date; }
   get additions() { return this._add; }
@@ -25,7 +25,7 @@ class FlatDiff {
     if (diffOrRoot instanceof FileDiff.FileDiff) {
       const diff = diffOrRoot;
       this._root = diff.commit.repo.dir;
-      this._sha = new Set(_.flatten([diff.commit.sha]));
+      this._sha = _.uniq(_.flatten([diff.commit.sha]));
       this._file = _.flatten([diff.file]);
 
       /* mutable members */
@@ -34,9 +34,9 @@ class FlatDiff {
       this._date = new ScalableNumber(diff.commit.date.valueOf());
     } else if (diffOrRoot instanceof FileRef.FileRef) {
       if (Array.isArray(sha)) {
-        this._sha = new Set(sha);
+        this._sha = _.uniq(sha);
       } else if (typeof sha == 'string') {
-        this._sha = new Set([sha]);
+        this._sha = [sha];
       } else {
         /* assume it's a Set; I couldn't google for this effectively */
         this._sha = sha;
@@ -103,7 +103,7 @@ class FlatDiff {
     if (this.canMerge(flatDiff)) {
       let add = this.additions.translated(flatDiff.additions.value);
       let del = this.deletions.translated(flatDiff.deletions.value);
-      let sha = new Set(this.sha.concat(flatDiff.sha));
+      let sha = this.sha.concat(flatDiff.sha);
 
       /* Make sure we don't have duplicates by extracting the first element of
        * each group of unique paths. FileRef guarantees that its derived data is

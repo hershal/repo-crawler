@@ -51,7 +51,7 @@ describe('FlatDiff tests', function () {
     });
 
     it('should merge multiple elements with same time, sha, and type', function () {
-      flat1._sha = new Set(['abc']);
+      flat1._sha = ['abc'];
       const merged = flat0.merged(flat1);
       assert(merged);
       assert(merged.additions.value == 2 && merged.deletions.value == 2);
