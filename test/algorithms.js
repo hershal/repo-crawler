@@ -22,7 +22,7 @@ describe('Algorithms', function () {
     it(`${i} std deviation(s)`, function () {
       flatDiffs = flatDiffs.filter((f) => {
         let changes = f.additions.value + f.deletions.value;
-        return Math.abs(changes - beforeStats.mean) < beforeStats.stdd * i;
+        return Math.abs(changes - beforeStats.mean) < beforeStats.standardDeviation * i;
       });
     });
   }
@@ -33,13 +33,13 @@ describe('Algorithms', function () {
   });
 
   function formatStats(stats) {
-    let {mean, min, max, vari, stdd} = stats;
+    let {mean, min, max, variance, standardDeviation} = stats;
     let str = '';
     str += `m: ${mean.toFixed(2)}  `;
     str += `mi: ${min.toFixed(2)}  `;
     str += `ma: ${max.toFixed(2)}  `;
-    str += `v: ${vari.toFixed(2)}  `;
-    str += `s: ${stdd.toFixed(2)}`;
+    str += `v: ${variance.toFixed(2)}  `;
+    str += `s: ${standardDeviation.toFixed(2)}`;
     return str;
   }
 
@@ -48,8 +48,8 @@ describe('Algorithms', function () {
     const min = values.reduce((a, c) => Math.min(a, c), Number.MAX_SAFE_INTEGER);
     const max = values.reduce((a, c) => Math.max(a, c), 0);
     const mean = values.reduce((a, c) => a + c, 0) / values.length;
-    const vari = values.reduce((a, c) => a + Math.pow(c - mean, 2), 0) / values.length;
-    const stdd = Math.sqrt(vari);
-    return {mean, min, max, vari, stdd};
+    const variance = values.reduce((a, c) => a + Math.pow(c - mean, 2), 0) / values.length;
+    const standardDeviation = Math.sqrt(variance);
+    return {mean, min, max, variance, standardDeviation};
   }
 });
