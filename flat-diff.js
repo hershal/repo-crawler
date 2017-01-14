@@ -43,15 +43,30 @@ class FlatDiff {
       }
       this._root = diffOrRoot;
       this._file = file;
-      this._add = add;
-      this._del = del;
-      this._date = date;
+      this._add = this._toScalableNumber(add);
+      this._del = this._toScalableNumber(del);
+      this._date = this._toScalableNumber(date);
     } else {
       console.log('constructing FlatDiff from nothing!');
     }
 
     this.mergeCriteria = 'language';
     this.mergedCriteria = this.file[0].classification[this.mergeCriteria];
+  }
+
+  _toScalableNumber(a) {
+    if (a instanceof ScalableNumber || !isNaN(a.value)) {
+      return a;
+    } else {
+      return new ScalableNumber(a);
+    }
+  }
+
+  static fromJSON(json) {
+    return new FlatDiff(FileRef.FileRef.fromJSON(json._root),
+                        json._sha,
+                        json._file.map((f) => FileRef.FileRef.fromJSON(f)),
+                        json._date, json._add._value, json._del._value);
   }
 
   canMerge(flatDiff) {

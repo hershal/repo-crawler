@@ -12,5 +12,9 @@ class FileRef {
     this._filepath = filepath;
     this._classification = FileClassifier.classify(this);
   }
+
+  static fromJSON(json) {
+    return new FileRef(json._filepath);
+  }
 }
 module.exports.FileRef = FileRef;
