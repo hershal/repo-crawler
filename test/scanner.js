@@ -9,11 +9,7 @@ const Scanner = require('../repo').Scanner;
 const Repo = require('../repo').Repo;
 
 const FlatDiffsAlgorithms = require('../flat-diffs-algorithms');
-
-const CSVRender = require('../csv-renderer');
-const SVGRender = require('../svg-renderer');
-
-const Utils = require('../utils');
+const FlatDiff = require('../flat-diff').FlatDiff;
 
 describe('Scanner Categorization Tests', function () {
   let repo, flatDiffs;
@@ -58,27 +54,6 @@ describe('Scanner Categorization Tests', function () {
     });
   });
 
-  it('render repo commits to CSV', function () {
-    const fileDiffs =  _([repo])
-          .map((r) => r.commits)
-          .flatten()
-          .map((c) => c.fileDiffs)
-          .flatten()
-          .value();
-
-    const flatDiffs = _(fileDiffs)
-          .filter((d) => d.file.classification != undefined)
-          .map((d) => d.flatten())
-          .value();
-
-    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
-    const merged = FlatDiffsAlgorithms.merged(scaled);
-    const flattened = _.flatten(merged);
-
-    const rendered = CSVRender.render(flattened);
-    fs.writeFileSync('rendered.csv', rendered);
-  });
-
   it('should flatten FileDiffs into FlatDiffs', function () {
     assert(flatDiffs.length > 0);
     flatDiffs.forEach((d) => {
@@ -102,97 +77,38 @@ describe('Scanner Categorization Tests', function () {
     /* console.log(util.inspect(merged, {depth: null, maxArrayLength: null})); */
     /* console.log(merged.length); */
   });
-
-  it('should render into svg', function () {
-    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
-    const merged = FlatDiffsAlgorithms.merged(scaled);
-    const flattened = _.flatten(merged);
-    const normalized = FlatDiffsAlgorithms.normalized(flattened);
-    let rendered = _.mapValues(normalized, (v, k) => SVGRender.render(800, 600, v));
-
-    /* console.log(util.inspect(_.groupBy(flattened, (el) => el.mergedCriteria)['Ruby'], {depth: null})); */
-
-    let one = 'JavaScript';
-    /* _.forIn(rendered, (v, k) => { */
-    /*   fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v); */
-    /* }); */
-  });
 });
 
 
-describe('Scanning Directory Full of Repos', function () {
-  let scanner;
-  before(function (done) {
-    this.timeout(64000);
-    scanner = new Scanner();
-    scanner.scan(process.env.HOME + '/repos/').then(() => done());
-  });
+const statsFile = 'stats.json';
+if (!fs.existsSync(statsFile)) {
+  describe('Scanning Directory Full of Repos', function () {
+    let scanner;
 
-  it('should scan a whole dir of repos', function () {
-    assert(scanner.repos.length > 0);
-  });
-
-  it('should render to CSV', function () {
-    this.timeout(10000);
-
-    const fileDiffs =  _(scanner.repos)
-          .map((r) => r.commits)
-          .flatten()
-          .map((c) => c.fileDiffs)
-          .flatten()
-          .value();
-
-    const flatDiffs = _(fileDiffs)
-          .filter((d) => d.file.classification != undefined)
-          .map((d) => d.flatten())
-          .value();
-
-    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
-    const merged = FlatDiffsAlgorithms.merged(scaled);
-    const flattened = _.flatten(merged);
-
-    /* console.log(util.inspect(flattened)); */
-
-    let rendered = CSVRender.render(flattened);
-    fs.writeFileSync('rendered-full.csv', rendered);
-  });
-
-  it('should render SVG', function () {
-    this.timeout(10000);
-    const fileDiffs =  _(scanner.repos)
-          .map((r) => r.commits)
-          .flatten()
-          .map((c) => c.fileDiffs)
-          .flatten()
-          .value();
-
-    const unknowns = _(fileDiffs)
-          .map((d) => d.file)
-          .filter((f) => !f.classification)
-          .map((f) => f.extension)
-          .uniq()
-          .value();
-
-    /* console.log(util.inspect(unknowns, {maxArrayLength: null})); */
-
-    const flatDiffs = _(fileDiffs)
-          .filter((d) => d.file.classification != undefined)
-          .map((d) => d.flatten())
-          .value();
-
-    const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
-    const merged = FlatDiffsAlgorithms.merged(scaled);
-    const flattened = _.flatten(merged);
-    const normalized = FlatDiffsAlgorithms.normalized(flatDiffs);
-
-    /* console.log(normalized); */
-
-    let rendered = _.mapValues(normalized, (v, k) => SVGRender.render(800, 600, v));
-
-    let one = 'JavaScript';
-    _.forIn(rendered, (v, k) => {
-      fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(k)}.svg`, v);
+    before(function (done) {
+      this.timeout(64000);
+      scanner = new Scanner();
+      scanner.scan(process.env.HOME + '/repos/').then(() => done());
     });
-    /* fs.writeFileSync(`../../repos/hershal.com/about/skills/lang-${Utils.slugify(one)}.svg`, rendered[one]); */
+
+    it('should write a file with the flat data', function () {
+      const fileDiffs =  _(scanner.repos)
+        .map((r) => r.commits)
+        .flatten()
+        .map((c) => c.fileDiffs)
+        .flatten()
+            .value();
+
+      const flatDiffs = _(fileDiffs)
+        .filter((d) => d.file.classification != undefined)
+        .map((d) => d.flatten())
+        .value();
+
+      fs.writeFileSync(statsFile, JSON.stringify(flatDiffs));
+    });
+
+    it('should scan a whole dir of repos', function () {
+      assert(scanner.repos.length > 1);
+    });
   });
-});
+}
