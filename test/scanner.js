@@ -15,7 +15,7 @@ describe('Scanner Categorization Tests', function () {
   let repo, flatDiffs;
 
   before('should create a repo object', function(done) {
-    this.timeout(4000);
+    this.timeout(10000);
     let dir = '../hershal.com';
     repo = new Repo(dir);
     repo.scan().then(() => {
