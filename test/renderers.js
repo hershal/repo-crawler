@@ -7,6 +7,7 @@ const util = require('util');
 
 const FlatDiffsAlgorithms = require('../flat-diffs-algorithms');
 const FlatDiff = require('../flat-diff').FlatDiff;
+const ScannerFlyweight = require('./scanner-flyweight').ScannerFlyweight;
 
 const CSVRender = require('../csv-renderer');
 const SVGRender = require('../svg-renderer');
@@ -16,9 +17,12 @@ const Utils = require('../utils');
 describe('FlatDiffs Renderers', function () {
   let flatDiffs;
 
-  beforeEach(function () {
-    flatDiffs = JSON.parse(fs.readFileSync(__dirname + '/stats.json').toString())
-      .map((j) => FlatDiff.fromJSON(j));
+  beforeEach(function (done) {
+    this.timeout(10000);
+    flatDiffs = ScannerFlyweight.get().then((diffs) => {
+      flatDiffs = diffs;
+      done();
+    });
   });
 
   it('should render to CSV', function () {
@@ -64,7 +68,8 @@ describe('FlatDiffs Renderers', function () {
     const scaled = FlatDiffsAlgorithms.scaledDates(flatDiffs);
     const merged = FlatDiffsAlgorithms.merged(scaled);
     const flattened = _.flatten(merged);
-    const normalized = FlatDiffsAlgorithms.normalized(flatDiffs);
+    const trimmed = FlatDiffsAlgorithms.trimmed(flattened);
+    const normalized = FlatDiffsAlgorithms.normalized(trimmed);
 
     /* console.log(normalized); */
 

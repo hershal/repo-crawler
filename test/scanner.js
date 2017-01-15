@@ -78,37 +78,3 @@ describe('Scanner Categorization Tests', function () {
     /* console.log(merged.length); */
   });
 });
-
-
-const statsFile = __dirname + '/stats.json';
-if (!fs.existsSync(statsFile)) {
-  describe('Scanning Directory Full of Repos', function () {
-    let scanner;
-
-    before(function (done) {
-      this.timeout(64000);
-      scanner = new Scanner();
-      scanner.scan(process.env.HOME + '/repos/').then(() => done());
-    });
-
-    it('should write a file with the flat data', function () {
-      const fileDiffs =  _(scanner.repos)
-        .map((r) => r.commits)
-        .flatten()
-        .map((c) => c.fileDiffs)
-        .flatten()
-            .value();
-
-      const flatDiffs = _(fileDiffs)
-        .filter((d) => d.file.classification != undefined)
-        .map((d) => d.flatten())
-        .value();
-
-      fs.writeFileSync(statsFile, JSON.stringify(flatDiffs));
-    });
-
-    it('should scan a whole dir of repos', function () {
-      assert(scanner.repos.length > 1);
-    });
-  });
-}
